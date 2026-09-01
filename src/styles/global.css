@@ -75,8 +75,11 @@
   --shadow-panel: 0 24px 48px rgb(10 37 64 / 0.18);
 
   /* ---------------------------------------------------------------- RITMO */
-  --spacing-section: 4.5rem;    /* aire vertical entre secciones (movil) */
-  --spacing-section-lg: 7rem;   /* idem en escritorio                    */
+  /* Aire vertical entre secciones. Cada seccion lo aplica arriba y abajo,
+     asi que el hueco real entre dos es el doble: a 4.5rem eran 144 px de
+     blanco en un telefono, demasiado para el poco alto que hay. */
+  --spacing-section: 3rem;      /* movil      -> 96 px entre secciones */
+  --spacing-section-lg: 5rem;   /* escritorio -> 160 px                */
   --spacing-tap: 2.75rem;       /* 44px: area tactil minima WCAG         */
 
   --container-page: 76rem;

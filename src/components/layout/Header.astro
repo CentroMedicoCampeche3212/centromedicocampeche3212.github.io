@@ -1,7 +1,6 @@
 ---
 import Logo from './Logo.astro';
 import MobileMenu from './MobileMenu.astro';
-import Button from '@/components/ui/Button.astro';
 import { mainNav } from '@/data/nav';
 import { withBase, isCurrentPath } from '@/lib/url';
 
@@ -60,15 +59,14 @@ const pathname = Astro.url.pathname;
         </ul>
       </nav>
 
-      <div class="flex items-center gap-2">
-        {/* Aparece a la vez que la navegacion, no antes: entre 640 y 1024 px
-            solo cabian logotipo, boton y hamburguesa, y se pisaban. En movil
-            el CTA sigue disponible dentro del menu y bajo el carrusel. */}
-        <Button href="/contacto" variant="primary" class="hidden lg:inline-flex" icon="calendar">
-          Agendar cita
-        </Button>
-        <MobileMenu />
-      </div>
+      {/* Sin boton "Agendar cita" aqui, por dos razones. La primera, que el
+          cliente lo pidio fuera. La segunda, que no habia forma limpia de
+          ocultarlo: `hidden` desde fuera no puede vencer al `inline-flex` de
+          la clase base de Button, porque en Tailwind manda el orden del CSS
+          generado y `.inline-flex` sale despues de `.hidden`.
+          El acceso a contacto sigue en la navegacion, en el menu movil y en
+          el boton ambar bajo el carrusel. */}
+      <MobileMenu />
     </div>
   </div>
 </header>

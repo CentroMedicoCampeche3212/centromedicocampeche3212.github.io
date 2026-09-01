@@ -1,5 +1,5 @@
 ---
-import { Image, getImage } from 'astro:assets';
+import { getImage } from 'astro:assets';
 import Icon from '@/components/ui/Icon.astro';
 import { heroSlides } from '@/data/heroSlides';
 
@@ -26,11 +26,35 @@ const backdrops = await Promise.all(
 );
 
 /**
- * Anchos candidatos del `srcset`. Cada diapositiva se queda solo con los que
- * no superan su original: pedir 1920 px a una imagen de 960 obligaría a
- * ampliarla, y una pieza con texto se vería borrosa al hacerlo.
+ * Dirección de arte: dos encuadres distintos, no dos tamaños del mismo.
+ *
+ * `<Image />` no sirve aquí porque solo escala una imagen; hace falta un
+ * <picture> con <source media> para que el navegador elija ARCHIVO según el
+ * ancho de pantalla. Se compone con `getImage`, que además deja escribir el
+ * <img> a mano y conservar el `alt`.
  */
-const STEPS = [640, 960, 1280, 1920];
+const MOBILE_QUERY = '(max-width: 39.999rem)';
+
+const sources = await Promise.all(
+  heroSlides.map(async (slide, index) => {
+    const eager = index === 0;
+    const [ancha, movil] = await Promise.all([
+      getImage({
+        src: slide.image,
+        widths: [640, 960, 1280, 1920].filter((w) => w <= slide.image.width),
+        format: 'webp',
+        quality: 82,
+      }),
+      getImage({
+        src: slide.imageMobile,
+        widths: [420, 640, slide.imageMobile.width],
+        format: 'webp',
+        quality: 84,
+      }),
+    ]);
+    return { ancha, movil, eager };
+  }),
+);
 
 /**
  * Carrusel del hero.
@@ -74,23 +98,31 @@ const STEPS = [640, 960, 1280, 1920];
               class="hero-backdrop absolute inset-0 h-full w-full object-cover"
             />
 
-            <Image
-              src={slide.image}
-              alt={slide.alt}
-              widths={STEPS.filter((width) => width <= slide.image.width)}
-              sizes="100vw"
-              format="webp"
-              quality={slide.mode === 'banner' ? 82 : 70}
-              loading={index === 0 ? 'eager' : 'lazy'}
-              fetchpriority={index === 0 ? 'high' : 'auto'}
-              decoding={index === 0 ? 'sync' : 'async'}
-              class:list={[
-                'absolute inset-0 h-full w-full',
-                /* La pieza gráfica se muestra entera: recortarla cortaría su
-                   propio texto. La fotografía sí llena el marco. */
-                slide.mode === 'banner' ? 'object-contain' : 'object-cover',
-              ]}
-            />
+            <picture>
+              <source
+                media={MOBILE_QUERY}
+                srcset={sources[index]!.movil.srcSet.attribute}
+                sizes="100vw"
+                type="image/webp"
+              />
+              <img
+                src={sources[index]!.ancha.src}
+                srcset={sources[index]!.ancha.srcSet.attribute}
+                sizes="100vw"
+                alt={slide.alt}
+                width={slide.image.width}
+                height={slide.image.height}
+                loading={index === 0 ? 'eager' : 'lazy'}
+                fetchpriority={index === 0 ? 'high' : 'auto'}
+                decoding={index === 0 ? 'sync' : 'async'}
+                class:list={[
+                  'absolute inset-0 h-full w-full',
+                  /* La pieza gráfica se muestra entera: recortarla cortaría su
+                     propio texto. La fotografía sí llena el marco. */
+                  slide.mode === 'banner' ? 'object-contain' : 'object-cover',
+                ]}
+              />
+            </picture>
 
             {slide.mode === 'photo' && (
               <>
@@ -223,14 +255,22 @@ const STEPS = [640, 960, 1280, 1920];
      enmarcar la pieza y la dejaba aún más pequeña.
      Tampoco se le pone tope de altura: recortarla añadiría bandas laterales
      de un azul distinto al del degradado de la propia pieza. */
+  /* En móvil el marco toma la proporción del recorte 4:3, para que ese
+     encuadre entre completo. Desde 640 px vuelve al 12/5 de la pieza ancha. */
   .hero-slide {
     position: relative;
     flex: 0 0 100%;
     min-width: 0;
-    aspect-ratio: 12 / 5;
+    aspect-ratio: 4 / 3;
     scroll-snap-align: start;
     /* recorta el sangrado del desenfoque del fondo */
     overflow: hidden;
+  }
+
+  @media (width >= 40rem) {
+    .hero-slide {
+      aspect-ratio: 12 / 5;
+    }
   }
 
   /* Tope de altura: sin él, en un monitor de 1920 px el hero medía 800 px y se
