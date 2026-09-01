@@ -1,11 +1,142 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import PagePlaceholder from '@/components/ui/PagePlaceholder.astro';
+import Section from '@/components/ui/Section.astro';
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+import Val from '@/components/ui/Val.astro';
+import {
+  privacySections,
+  privacyIntro,
+  privacyUpdatedAt,
+} from '@/data/privacidad';
+import { site, contact } from '@/data/site';
+
+/* `timeZone: 'UTC'`: una fecha ISO se interpreta como medianoche UTC y al
+   formatearla en la hora de Campeche retrocedería un día. */
+const fechaLarga = new Intl.DateTimeFormat('es-MX', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+}).format(new Date(privacyUpdatedAt));
 ---
 
-<BaseLayout title="Aviso de Privacidad" description="Aviso de privacidad del Centro Médico Campeche.">
-  <PagePlaceholder
-    title="Aviso de Privacidad"
-    summary="Aviso de privacidad integral conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares."
-  />
+<BaseLayout
+  title="Aviso de Privacidad"
+  description="Aviso de privacidad integral del Centro Médico Campeche: qué datos personales tratamos, con qué finalidad y cómo ejercer sus derechos ARCO."
+>
+  {/* ---------- Encabezado e índice ---------- */}
+  <Section>
+    <div class="max-w-3xl">
+      <p class="mb-3 text-sm font-medium tracking-[0.14em] text-primary uppercase">
+        Aviso de Privacidad
+      </p>
+      <h1 class="text-display">Aviso de Privacidad Integral</h1>
+
+      <p class="mt-5 text-base text-muted">
+        Última actualización: <time datetime={privacyUpdatedAt}>{fechaLarga}</time>
+      </p>
+
+      <p class="mt-6 text-xl leading-relaxed">{privacyIntro}</p>
+    </div>
+
+    {/* Índice: el documento es largo y quien llega suele buscar un apartado
+        concreto, casi siempre el de derechos ARCO. */}
+    <nav class="reveal mt-12 max-w-3xl rounded-lg border border-hairline bg-surface p-6 md:p-7" aria-labelledby="indice-titulo">
+      <h2 id="indice-titulo" class="text-h3">Contenido</h2>
+      <ol class="mt-4 grid gap-x-8 gap-y-1 sm:grid-cols-2">
+        {
+          privacySections.map((section, index) => (
+            <li>
+              <a href={`#${section.id}`} class="flex items-baseline gap-2 py-1.5 link-inline">
+                <span class="text-muted">{index + 1}.</span>
+                {section.title}
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+  </Section>
+
+  {/* ---------- Apartados ---------- */}
+  <Section tone="surface">
+    <div class="max-w-3xl space-y-12">
+      {
+        privacySections.map((section, index) => (
+          <article
+            id={section.id}
+            class="reveal anchor-target scroll-mt-32"
+            aria-labelledby={`${section.id}-titulo`}
+          >
+            <h2 id={`${section.id}-titulo`} class="text-h2">
+              <span class="text-primary">{index + 1}.</span> {section.title}
+            </h2>
+
+            {
+              section.body.map((parrafo) => (
+                <p class="mt-4 text-lg">
+                  <Val text={parrafo} />
+                </p>
+              ))
+            }
+
+            {
+              section.items && (
+                <ul class="mt-5 space-y-3">
+                  {section.items.map((item) => (
+                    <li class="flex items-start gap-3">
+                      <span
+                        class="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-mid"
+                        aria-hidden="true"
+                      />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              )
+            }
+
+            {section.after?.map((parrafo) => <p class="mt-4 text-lg">{parrafo}</p>)}
+          </article>
+        ))
+      }
+    </div>
+  </Section>
+
+  {/* ---------- Contacto ---------- */}
+  <Section tone="deep" compact labelledby="contacto-privacidad-titulo">
+    <div class="max-w-2xl">
+      <h2 id="contacto-privacidad-titulo" class="text-h2 text-white">
+        ¿Quiere ejercer sus derechos o tiene una duda?
+      </h2>
+      <p class="mt-4 text-lg text-white/85">
+        Comuníquese con nosotros por cualquiera de estos medios y le indicamos el
+        procedimiento. También puede presentar su solicitud directamente en
+        {' '}{site.name}.
+      </p>
+
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <Button href={contact.switchboard.href} variant="primary" size="lg" icon="phone">
+          Llamar al {contact.switchboard.label}
+        </Button>
+        <Button
+          href={contact.whatsapp.href}
+          variant="outline-light"
+          size="lg"
+          icon="whatsapp"
+        >
+          WhatsApp {contact.whatsapp.label}
+        </Button>
+      </div>
+
+      <p class="mt-8 flex items-start gap-3 rounded-lg border border-hairline-dark p-5 text-base text-white/85">
+        <Icon name="map-pin" size={22} class="mt-0.5 shrink-0 text-aqua" />
+        <span>
+          Av. Luis Donaldo Colosio Murrieta 5-258, Barrio de San José, C.P. 24049,
+          San Francisco de Campeche, Campeche.
+        </span>
+      </p>
+    </div>
+  </Section>
 </BaseLayout>

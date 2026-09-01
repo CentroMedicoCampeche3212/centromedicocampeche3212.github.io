@@ -70,7 +70,13 @@ const jsonLd = {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical.href} />
 
-    <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+    {/* Icono de pestaña: recorte del logotipo institucional, la «C» con el
+        caduceo. Se usa ese fragmento y no el logotipo entero porque a 32 px
+        la composición completa —anillo, monograma, tres líneas de texto y el
+        claim— se convierte en una mancha azul ilegible. */}
+    <link rel="icon" type="image/png" sizes="32x32" href={withBase('/favicon-32.png')} />
+    <link rel="icon" type="image/png" sizes="192x192" href={withBase('/favicon-192.png')} />
+    <link rel="apple-touch-icon" sizes="180x180" href={withBase('/apple-touch-icon.png')} />
     <meta name="theme-color" content="#0A2540" />
 
     <meta property="og:type" content="website" />
