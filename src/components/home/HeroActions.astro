@@ -15,14 +15,17 @@ import { contact } from '@/data/site';
 ---
 
 <div class="bg-deep on-dark">
-  <div class="container-page pb-10 pt-8 md:pb-12">
+  <div class="container-page pb-8 pt-5 md:pb-12 md:pt-8">
     <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
       <Button href="/contacto" variant="amber" size="lg" icon="calendar">Agendar cita</Button>
 
       {/* El boton lleva el numero a la vista: quien llega con una urgencia
           quiere verlo, no descubrirlo despues de pulsar. */}
+      {/* `whitespace-nowrap` en el numero: a lo ancho de un telefono el boton
+          partia el telefono por la mitad ("981 175" / "6512"). Si algo tiene
+          que saltar de linea, que salte antes del numero, nunca dentro. */}
       <Button href={contact.emergency.href} variant="urgent" size="lg" icon="phone">
-        Urgencias 24 h · {contact.emergency.label}
+        Urgencias 24 h · <span class="whitespace-nowrap">{contact.emergency.label}</span>
       </Button>
     </div>
 

@@ -6,27 +6,28 @@ import { contact, address } from '@/data/site';
  * Barra superior sobre azul profundo.
  *
  * Es lo primero que ve quien llega con una urgencia, así que los tres datos
- * son accionables: llamar, escribir por WhatsApp y abrir el mapa. En móvil
- * la dirección se oculta (no es accionable con el pulgar en la calle) y
- * quedan los dos contactos directos.
+ * son accionables: llamar, escribir por WhatsApp y abrir el mapa.
+ *
+ * En un teléfono los tres caían en filas separadas y la barra se comía 130 px
+ * antes de que empezara el sitio. Ahora urgencias ocupa su propia fila —es el
+ * dato crítico— y los otros dos comparten la siguiente, abreviados: el icono
+ * ya dice de qué se trata, así que las etiquetas «WhatsApp:» y la lada solo
+ * aparecen cuando hay sitio.
  */
 ---
 
 <div class="on-dark bg-deep text-white">
   <div class="container-page">
-    {/* `justify-between` solo a partir de lg, que es cuando aparece el tercer
-        dato. Por debajo quedaban dos elementos empujados a los extremos con
-        un hueco enorme en medio, y se leía como un fallo de alineación. */}
     <ul
-      class="flex flex-wrap items-center justify-center gap-x-8 text-sm lg:justify-between lg:gap-x-6"
+      class="flex flex-wrap items-center justify-center gap-x-6 text-xs sm:text-sm lg:justify-between"
       aria-label="Contacto rápido"
     >
-      <li class="flex items-center">
+      <li class="flex w-full justify-center sm:w-auto">
         <a
           href={contact.emergency.href}
-          class="flex items-center gap-2 py-2 tap-target font-medium transition-colors hover:text-aqua"
+          class="flex items-center gap-2 py-1.5 tap-target font-medium transition-colors hover:text-aqua"
         >
-          <Icon name="phone" size={18} class="shrink-0 text-aqua" />
+          <Icon name="phone" size={17} class="shrink-0 text-aqua" />
           {/* El `{' '}` es necesario: Astro elimina el salto de linea que
               separa el texto del <span> y las dos partes quedaban pegadas
               ("Urgencias 24 h:981 175 6512"). */}
@@ -40,25 +41,30 @@ import { contact, address } from '@/data/site';
       <li class="flex items-center">
         <a
           href={contact.whatsapp.href}
-          class="flex items-center gap-2 py-2 tap-target transition-colors hover:text-aqua"
+          class="flex items-center gap-2 py-1.5 tap-target transition-colors hover:text-aqua"
           rel="noopener"
         >
-          <Icon name="whatsapp" size={18} class="shrink-0 text-aqua" />
-          <span>WhatsApp:{' '}<span class="font-medium">{contact.whatsapp.label}</span></span>
+          <Icon name="whatsapp" size={17} class="shrink-0 text-aqua" />
+          <span>
+            <span class="hidden sm:inline">WhatsApp: </span>
+            <span class="font-medium">
+              <span class="hidden sm:inline">+52 1 </span>981 136 6016
+            </span>
+          </span>
         </a>
       </li>
 
       <li class="flex items-center">
         <a
           href={address.directionsUrl}
-          class="flex items-center gap-2 py-2 tap-target transition-colors hover:text-aqua"
+          class="flex items-center gap-2 py-1.5 tap-target transition-colors hover:text-aqua"
           target="_blank"
           rel="noopener noreferrer"
         >
-          <Icon name="map-pin" size={18} class="shrink-0 text-aqua" />
+          <Icon name="map-pin" size={17} class="shrink-0 text-aqua" />
           <span class="sm:hidden">{address.shortMobile}</span>
           <span class="hidden sm:inline">{address.short}</span>
-          <Icon name="external-link" size={14} class="shrink-0 opacity-70" />
+          <Icon name="external-link" size={13} class="shrink-0 opacity-70" />
           <span class="sr-only">(se abre en una pestaña nueva)</span>
         </a>
       </li>

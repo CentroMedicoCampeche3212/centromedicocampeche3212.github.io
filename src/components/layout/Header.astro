@@ -19,9 +19,12 @@ const pathname = Astro.url.pathname;
 >
   <div class="container-page">
     <div class="flex min-h-[var(--header-height)] items-center justify-between gap-4 py-3">
+      {/* `min-w-0`: sin esto el enlace se encoge por debajo de su contenido
+          —es un item flex y encoge por omision— y el logotipo se desbordaba
+          por encima del boton de al lado. */}
       <a
         href={withBase('/')}
-        class="flex items-center rounded-sm"
+        class="flex min-w-0 items-center rounded-sm"
         aria-current={isCurrentPath(withBase('/'), pathname) ? 'page' : undefined}
       >
         <Logo eager />
@@ -58,7 +61,10 @@ const pathname = Astro.url.pathname;
       </nav>
 
       <div class="flex items-center gap-2">
-        <Button href="/contacto" variant="primary" class="hidden sm:inline-flex" icon="calendar">
+        {/* Aparece a la vez que la navegacion, no antes: entre 640 y 1024 px
+            solo cabian logotipo, boton y hamburguesa, y se pisaban. En movil
+            el CTA sigue disponible dentro del menu y bajo el carrusel. */}
+        <Button href="/contacto" variant="primary" class="hidden lg:inline-flex" icon="calendar">
           Agendar cita
         </Button>
         <MobileMenu />
