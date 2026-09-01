@@ -1,0 +1,31 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+import Button from '@/components/ui/Button.astro';
+import { contact } from '@/data/site';
+---
+
+<BaseLayout
+  title="Página no encontrada"
+  description="La página que busca no existe o cambió de dirección."
+>
+  <Section>
+    <div class="max-w-2xl">
+      <p class="mb-3 text-sm font-medium tracking-[0.14em] text-primary uppercase">Error 404</p>
+      <h1 class="text-display">No encontramos esta página</h1>
+      <p class="mt-5 text-lg text-muted">
+        Es posible que la dirección haya cambiado o que el enlace esté incompleto. Puede
+        volver al inicio o, si necesita atención inmediata, llamarnos ahora mismo.
+      </p>
+
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <Button href="/" variant="primary" icon="arrow-right" iconPosition="end">
+          Volver al inicio
+        </Button>
+        <Button href={contact.emergency.href} variant="urgent" icon="phone">
+          Urgencias 24 h
+        </Button>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>

@@ -1,0 +1,49 @@
+---
+import Section from './Section.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { contact } from '@/data/site';
+
+interface Props {
+  title: string;
+  /** Qué contendrá la página cuando llegue el material del cliente. */
+  summary: string;
+}
+
+const { title, summary } = Astro.props;
+
+/**
+ * Andamio de las rutas que todavía no tienen contenido.
+ *
+ * Existen para que la navegación del header y del footer no lleve a un 404
+ * durante esta etapa. Cuando cada página se construya, este componente se
+ * sustituye por su contenido real.
+ */
+---
+
+<Section>
+  <div class="max-w-2xl">
+    <h1 class="text-display">{title}</h1>
+    <p class="mt-5 text-lg text-muted">{summary}</p>
+
+    <p
+      class="mt-8 flex items-start gap-3 rounded-lg border border-hairline bg-surface p-5 text-base"
+    >
+      <Icon name="clock" size={22} class="mt-0.5 shrink-0 text-primary" />
+      <span>
+        <strong class="font-medium">Esta sección está en preparación.</strong>
+        Mientras tanto puede escribirnos por WhatsApp o llamar al conmutador y con gusto le
+        damos la información.
+      </span>
+    </p>
+
+    <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+      <Button href={contact.whatsapp.href} variant="primary" icon="whatsapp">
+        Escribir por WhatsApp
+      </Button>
+      <Button href={contact.switchboard.href} variant="outline" icon="phone">
+        Llamar al {contact.switchboard.label}
+      </Button>
+    </div>
+  </div>
+</Section>

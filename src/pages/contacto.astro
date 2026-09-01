@@ -1,0 +1,157 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+import Card from '@/components/ui/Card.astro';
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+import Val from '@/components/ui/Val.astro';
+import { site, address, contact, schedule, socials, uniqueByHref } from '@/data/site';
+
+/** Urgencias primero: es la vía que se busca con prisa. */
+const canales = uniqueByHref([
+  { ...contact.emergency, icon: 'phone' as const, urgent: true },
+  { ...contact.switchboard, icon: 'phone' as const, urgent: false },
+  { ...contact.whatsapp, icon: 'whatsapp' as const, urgent: false },
+]);
+---
+
+<BaseLayout
+  title="Contacto"
+  description="Teléfonos, WhatsApp, dirección y horarios del Centro Médico Campeche, en Av. Luis Donaldo Colosio Murrieta 5-258, Barrio de San José."
+>
+  {/* ---------- Encabezado y canales ---------- */}
+  <Section>
+    <div class="max-w-3xl">
+      <p class="mb-3 text-sm font-medium tracking-[0.14em] text-primary uppercase">Contacto</p>
+      <h1 class="text-display">Cómo comunicarse con nosotros</h1>
+      <p class="mt-6 text-xl leading-relaxed">
+        Urgencias atiende las 24 horas, todos los días del año. Para cualquier otra
+        consulta puede llamar al conmutador o escribirnos por WhatsApp.
+      </p>
+    </div>
+
+    <ul class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        canales.map((canal, index) => (
+          <Card
+            as="li"
+            index={index}
+            interactive
+            tone={canal.urgent ? 'deep' : 'white'}
+          >
+            <div class="flex h-full flex-col p-6 md:p-7">
+              <span
+                class:list={[
+                  'flex h-14 w-14 items-center justify-center rounded-md',
+                  canal.urgent ? 'bg-white/12 text-aqua' : 'bg-surface text-primary',
+                ]}
+              >
+                <Icon name={canal.icon} size={28} />
+              </span>
+
+              {/* `break-words`: un dato de contacto largo y sin espacios se
+                  salía de la tarjeta en móvil. */}
+              <h2 class:list={['mt-5 text-h3 break-words', canal.urgent && 'text-white']}>
+                <a href={canal.href} class="after:absolute after:inset-0 after:rounded-lg">
+                  {canal.label}
+                </a>
+              </h2>
+
+              <p class:list={['mt-2', canal.urgent ? 'text-white/80' : 'text-muted']}>
+                {canal.note}
+              </p>
+            </div>
+          </Card>
+        ))
+      }
+    </ul>
+  </Section>
+
+  {/* ---------- Ubicación, mapa y horarios ---------- */}
+  <Section tone="surface" labelledby="ubicacion-contacto-titulo">
+    <div class="max-w-2xl">
+      <p class="mb-3 text-sm font-medium tracking-[0.14em] text-primary uppercase">
+        Ubicación
+      </p>
+      <h2 id="ubicacion-contacto-titulo" class="text-h2">Dónde estamos</h2>
+    </div>
+
+    <div class="mt-12 grid gap-8 lg:grid-cols-2 lg:gap-12">
+      <div class="reveal overflow-hidden rounded-lg border border-hairline shadow-card">
+        <iframe
+          src={address.mapEmbedUrl}
+          title={`Mapa con la ubicación del ${site.name}`}
+          width="100%"
+          height="100%"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          class="block aspect-[4/3] w-full border-0 lg:aspect-auto lg:h-full lg:min-h-[24rem]"></iframe>
+      </div>
+
+      <div class="reveal flex flex-col gap-8" style="--reveal-index: 1">
+        <div>
+          <h3 class="text-h3">Dirección</h3>
+          <address class="mt-3 text-lg not-italic">
+            <span class="block">{address.street}</span>
+            <span class="block">{address.neighborhood}</span>
+            <span class="block">
+              {address.city}, {address.state}. C.P. {address.postalCode}
+            </span>
+          </address>
+
+          <div class="mt-5">
+            <Button
+              href={address.directionsUrl}
+              variant="primary"
+              icon="directions"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Abrir en Google Maps
+            </Button>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-h3">Horarios</h3>
+          <dl class="mt-3 divide-y divide-hairline">
+            {
+              schedule.map((entry) => (
+                <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-3">
+                  <dt class:list={['font-medium', entry.emphasis && 'text-primary']}>
+                    {entry.service}
+                  </dt>
+                  <dd class="text-muted">
+                    <Val text={entry.hours} />
+                  </dd>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
+
+        <div>
+          <h3 class="text-h3">Redes sociales</h3>
+          <ul class="mt-3 flex flex-wrap gap-3">
+            {
+              socials.map((social) => (
+                <li>
+                  <a
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 rounded-sm border border-hairline-strong bg-white px-4 py-3 tap-target font-medium text-deep transition-colors hover:bg-surface"
+                  >
+                    <Icon name={social.icon} size={20} class="text-primary" />
+                    {social.name}
+                    <span class="sr-only">(se abre en una pestaña nueva)</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>

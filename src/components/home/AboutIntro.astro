@@ -1,0 +1,37 @@
+---
+import Section from '@/components/ui/Section.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { withBase } from '@/lib/url';
+
+/**
+ * Declaración institucional, justo debajo del hero.
+ *
+ * Es lo primero que se lee tras el carrusel, así que va sola y con aire:
+ * un solo párrafo compuesto grande, sin tarjetas ni columnas que compitan.
+ */
+---
+
+<Section tone="surface" labelledby="quienes-somos-titulo">
+  <div class="reveal max-w-3xl">
+    <p class="mb-3 text-sm font-medium tracking-[0.14em] text-primary uppercase">
+      Quiénes somos
+    </p>
+
+    <h2 id="quienes-somos-titulo" class="text-h2">
+      Cuidando de tu salud con excelencia
+    </h2>
+
+    <p class="mt-6 text-xl leading-relaxed">
+      Somos un hospital de alta especialidad certificado, líder en la prestación de
+      servicios médicos acreditados, formador de recursos humanos y generador de nuevos
+      conocimientos en el ámbito de la medicina, buscando el reconocimiento estatal.
+    </p>
+
+    <p class="mt-8">
+      <a href={withBase('/sobre-nosotros')} class="link-arrow text-lg">
+        Conocer más sobre el hospital
+        <Icon name="arrow-right" size={20} />
+      </a>
+    </p>
+  </div>
+</Section>

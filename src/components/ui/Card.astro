@@ -1,0 +1,57 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+type Tone = 'white' | 'deep';
+
+interface Props extends HTMLAttributes<'div'> {
+  /** Etiqueta del elemento. `li` cuando la tarjeta vive dentro de una lista. */
+  as?: 'article' | 'div' | 'li';
+  /**
+   * Fondo de la tarjeta.
+   *
+   * Es una prop y NO algo que se pase por `class`: al añadir `bg-deep` desde
+   * fuera, la clase base `bg-white` de este componente seguía ganando —en
+   * Tailwind decide el orden del CSS generado, no el del atributo `class`— y
+   * la tarjeta quedaba blanca con el texto blanco encima, es decir, invisible.
+   * Eligiendo aquí el fondo no hay dos utilidades compitiendo.
+   */
+  tone?: Tone;
+  /** Posición dentro de la rejilla, para escalonar la aparición al hacer scroll. */
+  index?: number;
+  /** Añade elevación al pasar el cursor. Solo si la tarjeta lleva un enlace. */
+  interactive?: boolean;
+  class?: string;
+}
+
+const {
+  as: Tag = 'article',
+  tone = 'white',
+  index = 0,
+  interactive = false,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const tones: Record<Tone, string> = {
+  white: 'border-hairline bg-white',
+  // `on-dark` cambia el color del anillo de foco a aqua (ver global.css)
+  deep: 'border-deep bg-deep on-dark',
+};
+---
+
+<Tag
+  class:list={[
+    /* La transición vive completa en `.reveal` (global.css). No añadir aquí
+       utilidades `transition-*`: pisan esa regla y rompen la aparición. */
+    'reveal relative flex flex-col rounded-lg border shadow-card',
+    tones[tone],
+    interactive && 'hover:-translate-y-0.5 hover:border-mid hover:shadow-card-hover',
+    /* El foco del enlace interior se refleja en toda la tarjeta. */
+    interactive && 'focus-within:border-mid focus-within:shadow-card-hover',
+    className,
+  ]}
+  style={`--reveal-index: ${index}`}
+  {...rest}
+>
+  <slot />
+</Tag>

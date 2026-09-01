@@ -1,0 +1,89 @@
+---
+import { Image } from 'astro:assets';
+import Card from './Card.astro';
+import Icon from './Icon.astro';
+import type { Promotion } from '@/data/promotions';
+
+interface Props {
+  promo: Promotion;
+  index?: number;
+  headingLevel?: 'h2' | 'h3';
+  /** En Inicio se muestra el resumen; en /promociones, todo el detalle. */
+  detailed?: boolean;
+}
+
+const { promo, index = 0, headingLevel: Heading = 'h3', detailed = false } = Astro.props;
+
+/**
+ * Tarjeta de promoción.
+ *
+ * La imagen va SIN recorte, a su proporción original y sobre fondo azul claro:
+ * son piezas cerradas del cliente y encuadrarlas les cortaría el texto. Como
+ * las dos piezas tienen proporciones distintas (1:1 y 4:5), cada tarjeta
+ * adopta la altura que le toca en lugar de forzarlas a un marco común.
+ */
+const STEPS = [360, 480, 720, 1024];
+const widths = [...new Set([...STEPS.filter((w) => w < promo.image.width), promo.image.width])];
+---
+
+<Card as="li" index={index}>
+  <div class="flex h-full flex-col">
+    <div class="rounded-t-lg bg-surface p-3">
+      <Image
+        src={promo.image}
+        alt={promo.imageAlt}
+        widths={widths}
+        sizes="(min-width: 64rem) 30rem, (min-width: 40rem) 45vw, 90vw"
+        format="webp"
+        quality={82}
+        loading="lazy"
+        decoding="async"
+        class="mx-auto w-full max-w-[26rem] rounded-md"
+      />
+    </div>
+
+    <div class="flex flex-1 flex-col p-6 md:p-7">
+      <Heading class="text-h3">{promo.title}</Heading>
+      <p class="mt-3 text-muted">{promo.lead}</p>
+
+      {
+        detailed && promo.includes && (
+          <>
+            <h3 class="mt-6 text-base font-medium text-deep">Incluye</h3>
+            <ul class="mt-3 space-y-2">
+              {promo.includes.map((item) => (
+                <li class="flex items-start gap-3">
+                  <Icon name="check" size={20} class="mt-1 shrink-0 text-primary" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        )
+      }
+
+      <dl class="mt-6 flex-1 space-y-3 border-t border-hairline pt-4 text-base">
+        {
+          promo.schedule && (
+            <div class="flex items-start gap-3">
+              <dt class="sr-only">Horario</dt>
+              <Icon name="clock" size={20} class="mt-1 shrink-0 text-primary" />
+              <dd class="font-medium text-deep">{promo.schedule}</dd>
+            </div>
+          )
+        }
+        {
+          promo.location && (
+            <div class="flex items-start gap-3">
+              <dt class="sr-only">Dónde se realiza</dt>
+              <Icon name="map-pin" size={20} class="mt-1 shrink-0 text-primary" />
+              <dd class="font-medium text-deep">{promo.location}</dd>
+            </div>
+          )
+        }
+      </dl>
+
+      {promo.note && <p class="mt-4 text-sm text-muted">{promo.note}</p>}
+    </div>
+  </div>
+</Card>

@@ -1,0 +1,106 @@
+---
+import Section from '@/components/ui/Section.astro';
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+import Icon from '@/components/ui/Icon.astro';
+import Button from '@/components/ui/Button.astro';
+import Val from '@/components/ui/Val.astro';
+import { address, contact, schedule, site, uniqueByHref } from '@/data/site';
+
+/* Se deduplica por si dos entradas volvieran a compartir número. */
+const phoneLinks = uniqueByHref([contact.emergency, contact.switchboard, contact.whatsapp]);
+---
+
+{/* Fondo blanco, no `surface`: la sección anterior (Promociones) ya va en
+    azul claro y dos seguidas del mismo tono se leen como una sola. */}
+<Section labelledby="ubicacion-titulo" id="ubicacion" class="anchor-target">
+  <SectionHeader
+    id="ubicacion-titulo"
+    eyebrow="Ubicación y horarios"
+    title="Cómo llegar y a qué hora atendemos"
+    intro="Estamos en el centro de San Francisco de Campeche, con acceso para ambulancias y estacionamiento para pacientes."
+  />
+
+  <div class="mt-12 grid gap-8 lg:grid-cols-2 lg:gap-12">
+    {/* ---------- Mapa ---------- */}
+    <div class="reveal overflow-hidden rounded-lg border border-hairline shadow-card">
+      {/*
+        El iframe carga en diferido y lleva `title`: sin él, quien navega con
+        lector de pantalla solo escucha "marco", sin saber de qué.
+        Sustituir `mapEmbedUrl` en src/data/site.ts por la ubicación exacta.
+      */}
+      <iframe
+        src={address.mapEmbedUrl}
+        title={`Mapa con la ubicación del ${site.name}`}
+        width="100%"
+        height="100%"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        class="block aspect-[4/3] w-full border-0 lg:aspect-auto lg:h-full lg:min-h-[26rem]"
+      ></iframe>
+    </div>
+
+    {/* ---------- Datos ---------- */}
+    <div class="reveal flex flex-col gap-8" style="--reveal-index: 1">
+      <div>
+        <h3 class="text-h3">Dirección</h3>
+        <address class="mt-3 not-italic text-lg">
+          <span class="block">{address.street}</span>
+          <span class="block">{address.neighborhood}</span>
+          <span class="block">
+            {address.city}, {address.state}. C.P. {address.postalCode}
+          </span>
+        </address>
+
+        <div class="mt-5">
+          <Button
+            href={address.directionsUrl}
+            variant="outline"
+            icon="directions"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Cómo llegar
+          </Button>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-h3">Teléfonos</h3>
+        <ul class="mt-3">
+          {
+            phoneLinks.map((phone) => (
+              <li>
+                <a
+                  href={phone.href}
+                  class="flex items-center gap-3 py-2 tap-target text-lg transition-colors hover:text-primary"
+                >
+                  <Icon name="phone" size={20} class="shrink-0 text-primary" />
+                  <span>
+                    <span class="font-medium">{phone.label}</span>
+                    <span class="text-muted"> — {phone.note}</span>
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-h3">Horarios de atención</h3>
+        <dl class="mt-3 divide-y divide-hairline">
+          {
+            schedule.map((entry) => (
+              <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-3">
+                <dt class:list={['font-medium', entry.emphasis && 'text-primary']}>
+                  {entry.service}
+                </dt>
+                <dd class="text-muted"><Val text={entry.hours} /></dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </div>
+  </div>
+</Section>

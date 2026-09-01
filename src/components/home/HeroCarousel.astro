@@ -1,0 +1,381 @@
+---
+import { Image, getImage } from 'astro:assets';
+import Icon from '@/components/ui/Icon.astro';
+import { heroSlides } from '@/data/heroSlides';
+
+const total = heroSlides.length;
+
+/**
+ * Fondo de relleno.
+ *
+ * Al limitar la altura del carrusel, en monitores anchos el marco se vuelve
+ * más apaisado que la pieza y quedan franjas a los lados. En vez de dejarlas
+ * en un azul plano —que corta con el degradado de la propia pieza y se lee
+ * como un fallo—, se rellenan con la misma imagen ampliada y desenfocada.
+ * Basta con 640 px de ancho y calidad baja: va a salir borrosa a propósito, y
+ * al compartir origen con la principal el navegador no descarga nada extra
+ * que no vaya a usar.
+ *
+ * Se usa `getImage` y no <Image />: ese componente descarta `alt=""`, y este
+ * fondo es puramente decorativo.
+ */
+const backdrops = await Promise.all(
+  heroSlides.map((slide) =>
+    getImage({ src: slide.image, width: 640, format: 'webp', quality: 35 }),
+  ),
+);
+
+/**
+ * Anchos candidatos del `srcset`. Cada diapositiva se queda solo con los que
+ * no superan su original: pedir 1920 px a una imagen de 960 obligaría a
+ * ampliarla, y una pieza con texto se vería borrosa al hacerlo.
+ */
+const STEPS = [640, 960, 1280, 1920];
+
+/**
+ * Carrusel del hero.
+ *
+ * Sobre los encabezados: el titular de cada diapositiva NO es un <h1>. Un
+ * documento no puede cambiar de encabezado principal cada seis segundos sin
+ * romper la jerarquía, así que el <h1> real de la página es el que está
+ * arriba —visible solo para tecnologías de asistencia— y los titulares de
+ * las diapositivas son párrafos con tratamiento tipográfico de titular.
+ *
+ * Los botones de acción NO viven aquí: van fijos debajo, en HeroActions.
+ */
+---
+
+<section
+  class="relative isolate bg-deep on-dark"
+  aria-roledescription="carrusel"
+  aria-label="Instalaciones y servicios del Centro Médico Campeche"
+  data-hero-carousel
+>
+  {/* Sin JavaScript las cuatro diapositivas son alcanzables por scroll, así
+      que ninguna nace con aria-hidden: es initHeroCarousel quien empieza a
+      ocultar las que no están a la vista, ya con el carrusel funcionando. */}
+  <div class="hero-viewport" data-embla-viewport>
+    <div class="hero-track" aria-live="polite" data-embla-track>
+      {
+        heroSlides.map((slide, index) => (
+          <div
+            class="hero-slide"
+            role="group"
+            aria-roledescription="diapositiva"
+            aria-label={`${index + 1} de ${total}`}
+            data-embla-slide
+          >
+            <img
+              src={backdrops[index]!.src}
+              alt=""
+              aria-hidden="true"
+              loading={index === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+              class="hero-backdrop absolute inset-0 h-full w-full object-cover"
+            />
+
+            <Image
+              src={slide.image}
+              alt={slide.alt}
+              widths={STEPS.filter((width) => width <= slide.image.width)}
+              sizes="100vw"
+              format="webp"
+              quality={slide.mode === 'banner' ? 82 : 70}
+              loading={index === 0 ? 'eager' : 'lazy'}
+              fetchpriority={index === 0 ? 'high' : 'auto'}
+              decoding={index === 0 ? 'sync' : 'async'}
+              class:list={[
+                'absolute inset-0 h-full w-full',
+                /* La pieza gráfica se muestra entera: recortarla cortaría su
+                   propio texto. La fotografía sí llena el marco. */
+                slide.mode === 'banner' ? 'object-contain' : 'object-cover',
+              ]}
+            />
+
+            {slide.mode === 'photo' && (
+              <>
+                {/* Velo degradado: sobre la zona del texto deja el azul profundo
+                    al 80-94 %, que da 8.6:1 con texto blanco incluso si la
+                    fotografía que se coloque debajo fuera completamente blanca. */}
+                <div class="hero-overlay absolute inset-0" aria-hidden="true" />
+
+                <div class="absolute inset-x-0 bottom-0">
+                  <div class="container-page pb-10 md:pb-14 lg:pb-16">
+                    <div class="max-w-2xl">
+                      <p class="text-display font-[family-name:var(--font-serif)] font-semibold text-white">
+                        {slide.headline}
+                      </p>
+                      <p class="mt-4 text-lg text-white md:text-xl">{slide.support}</p>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        ))
+      }
+    </div>
+
+    {/* ---------------- Flechas laterales ---------------- */}
+    <button
+      type="button"
+      class="hero-arrow left-3 md:left-5"
+      aria-label="Diapositiva anterior"
+      data-carousel-prev
+    >
+      <Icon name="chevron-left" size={24} />
+    </button>
+
+    <button
+      type="button"
+      class="hero-arrow right-3 md:right-5"
+      aria-label="Diapositiva siguiente"
+      data-carousel-next
+    >
+      <Icon name="chevron-right" size={24} />
+    </button>
+  </div>
+
+  {/* ---------------- Puntos y pausa ---------------- */}
+  <div class="hero-controls">
+    <div class="container-page relative flex items-center justify-center gap-4 py-3">
+      <ul class="flex items-center gap-1" aria-label="Elegir diapositiva">
+        {
+          heroSlides.map((slide, index) => (
+            <li>
+              <button
+                type="button"
+                class="hero-dot"
+                aria-current={index === 0 ? 'true' : 'false'}
+                aria-label={`Diapositiva ${index + 1} de ${total}: ${slide.label}`}
+                data-carousel-dot
+              >
+                <span class="hero-dot-mark" />
+              </button>
+            </li>
+          ))
+        }
+      </ul>
+
+      {/* Control de pausa.
+          El cliente pidió retirarlo de la vista y que el carrusel avance solo,
+          así que deja de verse con el ratón. NO se elimina: el criterio 2.2.2
+          de la WCAG exige que todo contenido que se mueve solo durante más de
+          cinco segundos ofrezca una forma de detenerlo. Sigue en el orden de
+          tabulación y aparece en cuanto recibe el foco del teclado, igual que
+          el enlace de "saltar al contenido". */}
+      <button
+        type="button"
+        class="hero-toggle"
+        aria-label="Pausar el cambio automático"
+        data-carousel-toggle
+      >
+        <span data-carousel-icon="pause">
+          <Icon name="pause" size={18} />
+        </span>
+        <span class="hidden" data-carousel-icon="play">
+          <Icon name="play" size={18} />
+        </span>
+        <span class="text-sm font-medium" data-carousel-toggle-label>Pausar</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ---- Visor ----
+     Sin JavaScript queda como carrusel de scroll nativo con ajuste por
+     diapositiva. Cuando Embla toma el control, `data-enhanced` desactiva
+     el desplazamiento nativo para que no compita con las transformaciones. */
+  .hero-viewport {
+    position: relative;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    /* Impide que el desplazamiento horizontal del carrusel se propague al
+       documento: sin esto, arrastrar en diagonal sobre el hero encadenaba
+       el scroll de la página y se sentía como un tirón. */
+    overscroll-behavior-x: contain;
+  }
+
+  .hero-viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  [data-enhanced] .hero-viewport {
+    overflow: hidden;
+    scroll-snap-type: none;
+  }
+
+  .hero-track {
+    display: flex;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  /* La relación de aspecto fija reserva el espacio antes de que cargue la
+     imagen: sin esto el contenido de abajo saltaría (CLS).
+     `max-block-size` no reintroduce salto porque solo depende del ancho del
+     viewport, no de la imagen: la altura sigue siendo conocida de antemano. */
+  /* 12/5 = 2.4, exactamente la proporción de las cinco piezas (1920x800).
+     Se mantiene en TODOS los tamaños a propósito: al coincidir marco e imagen,
+     cada pieza entra completa y a su tamaño máximo, sin recorte ni bandas.
+     Antes el marco era 3/2 en móvil y 2/1 en tablet, lo que obligaba a
+     enmarcar la pieza y la dejaba aún más pequeña.
+     Tampoco se le pone tope de altura: recortarla añadiría bandas laterales
+     de un azul distinto al del degradado de la propia pieza. */
+  .hero-slide {
+    position: relative;
+    flex: 0 0 100%;
+    min-width: 0;
+    aspect-ratio: 12 / 5;
+    scroll-snap-align: start;
+    /* recorta el sangrado del desenfoque del fondo */
+    overflow: hidden;
+  }
+
+  /* Tope de altura: sin él, en un monitor de 1920 px el hero medía 800 px y se
+     comía la pantalla, además de obligar al navegador a ampliar la pieza en
+     pantallas de alta densidad. A 32rem la imagen se sirve más pequeña y sale
+     más nítida. */
+  @media (width >= 64rem) {
+    .hero-slide {
+      max-block-size: 32rem;
+    }
+  }
+
+  .hero-backdrop {
+    filter: blur(32px) saturate(1.15);
+    transform: scale(1.18);
+    z-index: -1;
+  }
+
+  .hero-overlay {
+    background-image: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--color-deep) 94%, transparent) 0%,
+      color-mix(in srgb, var(--color-deep) 80%, transparent) 42%,
+      color-mix(in srgb, var(--color-deep) 44%, transparent) 72%,
+      color-mix(in srgb, var(--color-deep) 28%, transparent) 100%
+    );
+  }
+
+  /* ---- Controles ----
+     Ocultos mientras no haya JavaScript: un botón que no hace nada es peor
+     que ningún botón. */
+  .hero-arrow,
+  .hero-controls {
+    display: none;
+  }
+
+  [data-enhanced] .hero-arrow {
+    position: absolute;
+    top: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--spacing-tap);
+    min-height: var(--spacing-tap);
+    transform: translateY(-50%);
+    border-radius: var(--radius-pill);
+    color: var(--color-white);
+    background-color: color-mix(in srgb, var(--color-deep) 62%, transparent);
+    border: 1px solid var(--color-hairline-dark);
+    transition: background-color 160ms var(--ease-out-soft);
+  }
+
+  [data-enhanced] .hero-arrow:hover {
+    background-color: color-mix(in srgb, var(--color-deep) 85%, transparent);
+  }
+
+  [data-enhanced] .hero-controls {
+    display: block;
+    background-color: var(--color-deep);
+    border-top: 1px solid var(--color-hairline-dark);
+  }
+
+  /* El punto visible mide 10 px, pero el botón que lo contiene mantiene
+     los 44x44 px de área táctil que exige la WCAG. */
+  .hero-dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--spacing-tap);
+    min-height: var(--spacing-tap);
+    border-radius: var(--radius-pill);
+  }
+
+  .hero-dot-mark {
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: var(--radius-pill);
+    background-color: color-mix(in srgb, var(--color-white) 45%, transparent);
+    transition:
+      background-color 200ms var(--ease-out-soft),
+      width 200ms var(--ease-out-soft);
+  }
+
+  .hero-dot:hover .hero-dot-mark {
+    background-color: color-mix(in srgb, var(--color-white) 75%, transparent);
+  }
+
+  .hero-dot.is-current .hero-dot-mark {
+    width: 28px;
+    background-color: var(--color-aqua);
+  }
+
+  /* Invisible para el ratón, alcanzable con el teclado: se materializa al
+     recibir el foco. `opacity` y no `display:none` justamente para que siga
+     en el orden de tabulación y lo anuncie el lector de pantalla. */
+  .hero-toggle {
+    position: absolute;
+    right: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: var(--spacing-tap);
+    padding-inline: 0.875rem;
+    border-radius: var(--radius-sm);
+    color: var(--color-white);
+    background-color: var(--color-deep);
+    border: 1px solid var(--color-hairline-dark);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 160ms var(--ease-out-soft);
+  }
+
+  .hero-toggle:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+</style>
+
+<script>
+  /**
+   * Isla del carrusel: Embla no se descarga hasta que el hero entra en
+   * el viewport (equivalente a `client:visible`), y ni siquiera entonces
+   * si el navegador no soporta IntersectionObserver, donde se carga sin más.
+   */
+  const root = document.querySelector<HTMLElement>('[data-hero-carousel]');
+
+  if (root) {
+    const load = async () => {
+      const { initHeroCarousel } = await import('../../scripts/embla-hero');
+      initHeroCarousel(root);
+    };
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          observer.disconnect();
+          void load();
+        },
+        { rootMargin: '200px' },
+      );
+      observer.observe(root);
+    } else {
+      void load();
+    }
+  }
+</script>

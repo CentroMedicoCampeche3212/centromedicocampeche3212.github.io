@@ -1,0 +1,59 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+import Button from '@/components/ui/Button.astro';
+import ServiceCard from '@/components/ui/ServiceCard.astro';
+import { services } from '@/data/services';
+import { contact } from '@/data/site';
+---
+
+<BaseLayout
+  title="Servicios y Especialidades"
+  description="Urgencias 24 horas, cirugía, rayos X las 24 horas, cuidados intensivos neonatales, laboratorio clínico, urología y nutrición en el Centro Médico Campeche."
+>
+  {/* ---------- Catálogo ---------- */}
+  <Section>
+    <div class="max-w-3xl">
+      <p class="mb-3 text-sm font-medium tracking-[0.14em] text-primary uppercase">
+        Servicios
+      </p>
+      <h1 class="text-display">Servicios y Especialidades</h1>
+      <p class="mt-6 text-xl leading-relaxed">
+        Atención médica continua, estudios de diagnóstico y hospitalización en un mismo
+        lugar, con equipo propio y personal capacitado. Seleccione un servicio para ver
+        su información completa.
+      </p>
+    </div>
+
+    <ul class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {services.map((service, index) => <ServiceCard service={service} index={index} headingLevel="h2" />)}
+    </ul>
+  </Section>
+
+  {/* ---------- Cierre ---------- */}
+  <Section tone="deep" compact labelledby="contacto-servicios-titulo">
+    <div class="max-w-2xl">
+      <h2 id="contacto-servicios-titulo" class="text-h2 text-white">
+        ¿No encuentra el servicio que busca?
+      </h2>
+      <p class="mt-4 text-lg text-white/85">
+        Llámenos o escríbanos por WhatsApp y le confirmamos disponibilidad, requisitos y
+        horarios del estudio o la consulta que necesita.
+      </p>
+
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <Button href={contact.whatsapp.href} variant="primary" size="lg" icon="whatsapp">
+          Escribir por WhatsApp
+        </Button>
+        <Button
+          href={contact.switchboard.href}
+          variant="outline-light"
+          size="lg"
+          icon="phone"
+        >
+          {contact.switchboard.label}
+        </Button>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>

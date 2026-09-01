@@ -1,0 +1,99 @@
+---
+import { Image } from 'astro:assets';
+import Section from '@/components/ui/Section.astro';
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+import Val from '@/components/ui/Val.astro';
+import bebe from '@/assets/img/maternidad-bebe.jpg';
+import { maternityIncludes, maternityPackages } from '@/data/maternity';
+
+/**
+ * Paquetes de Maternidad en la página de Inicio.
+ *
+ * Segunda y última aparición del ámbar, y solo en el CTA. El antetítulo va en
+ * azul primario a propósito: #E39A2C sobre blanco da 2.3:1, insuficiente para
+ * texto. El ámbar solo se usa como fondo, con texto tinta encima.
+ *
+ * Aquí va el resumen; el detalle completo (todo lo incluido, lo no incluido y
+ * las condiciones) vive en /paquetes-maternidad.
+ */
+
+/** Los cuatro primeros conceptos; la lista completa está en la otra página. */
+const destacados = maternityIncludes.slice(0, 4);
+---
+
+<Section labelledby="maternidad-titulo">
+  <div class="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+    {/* ---- Texto ---- */}
+    <div class="reveal">
+      <p class="mb-3 text-sm font-medium tracking-[0.14em] text-primary uppercase">
+        Paquetes de Maternidad
+      </p>
+
+      <h2 id="maternidad-titulo" class="text-h2">
+        Acompañamos la llegada de su bebé de principio a fin
+      </h2>
+
+      <p class="mt-4 text-lg text-muted">
+        Un paquete que reúne el uso de quirófano, la hospitalización en área VIP y la
+        atención de enfermería especializada, con el costo claro desde el primer día.
+      </p>
+
+      <ul class="mt-7 space-y-3">
+        {
+          destacados.map((item) => (
+            <li class="flex items-start gap-3">
+              <Icon name="check" size={22} class="mt-0.5 shrink-0 text-primary" />
+              <span>{item}</span>
+            </li>
+          ))
+        }
+      </ul>
+
+      {/* Precios: el dato que la gente viene a buscar, no escondido tras un clic. */}
+      <dl class="mt-8 grid gap-4 sm:grid-cols-2">
+        {
+          maternityPackages.map((paquete) => (
+            <div class="rounded-lg border border-hairline bg-surface p-5">
+              <dt class="text-base font-medium text-deep">{paquete.name}</dt>
+              <dd>
+                <p class="mt-1 font-[family-name:var(--font-serif)] text-3xl font-semibold text-primary">
+                  {paquete.price}
+                </p>
+                <p class="mt-1 text-sm text-muted">
+                  {paquete.room} · {paquete.stay}
+                </p>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <p class="mt-4 text-sm text-muted">
+        Precios en pesos mexicanos. No incluyen honorarios médicos ni estudios de
+        laboratorio o imagen. <Val text="Vigencia: {{VIGENCIA_PAQUETES_MATERNIDAD}}" />
+      </p>
+
+      <div class="mt-8">
+        <Button href="/paquetes-maternidad" variant="amber" size="lg" icon="baby">
+          Ver qué incluye cada paquete
+        </Button>
+      </div>
+    </div>
+
+    {/* ---- Imagen ---- */}
+    <div class="reveal" style="--reveal-index: 1">
+      <Image
+        src={bebe}
+        alt="Bebé de meses recostado sobre sus brazos, con mameluco gris, mirando a la cámara."
+        widths={[480, 720, 960]}
+        sizes="(min-width: 64rem) 32rem, 100vw"
+        format="webp"
+        quality={78}
+        loading="lazy"
+        decoding="async"
+        class="aspect-[4/5] w-full rounded-lg object-cover shadow-card"
+      />
+    </div>
+  </div>
+</Section>

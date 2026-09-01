@@ -1,0 +1,35 @@
+---
+interface Props {
+  /** Texto que puede contener marcadores {{PENDIENTE}}. */
+  text: string;
+}
+
+const { text } = Astro.props;
+
+/**
+ * Renderiza un texto y convierte cada {{MARCADOR}} en una ficha discreta.
+ *
+ * Sin esto, un `{{ANIOS_EXPERIENCIA}}` compuesto a 40 px en la franja de
+ * cifras desborda la retícula y la sección se ve rota. La ficha mantiene el
+ * dato pendiente a la vista —que para eso está— sin arrastrar la maqueta.
+ *
+ * Cuando el cliente entregue el dato y se sustituya en src/data/, el marcador
+ * desaparece y este componente deja de pintar nada especial.
+ */
+const parts = text.split(/(\{\{[^}]+\}\})/g).filter(Boolean);
+
+const humanize = (token: string) =>
+  token.slice(2, -2).replace(/_/g, ' ').toLowerCase();
+---
+
+{
+  parts.map((part) =>
+    part.startsWith('{{') && part.endsWith('}}') ? (
+      <span class="pending-value" title="Dato pendiente de confirmar con el cliente">
+        {humanize(part)}
+      </span>
+    ) : (
+      part
+    ),
+  )
+}

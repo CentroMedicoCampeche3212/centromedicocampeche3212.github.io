@@ -1,0 +1,49 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import { icons, type IconDef, type IconName } from './icons';
+
+interface Props extends Omit<HTMLAttributes<'svg'>, 'class'> {
+  name: IconName;
+  /** Tamaño en px del lado del cuadro. */
+  size?: number;
+  class?: string;
+  /**
+   * Los iconos son decorativos por omisión: el texto contiguo ya comunica
+   * el significado. Solo cuando el icono viaja solo (un enlace a Facebook,
+   * por ejemplo) se le pasa un `label` y pasa a anunciarse como imagen.
+   */
+  label?: string;
+}
+
+const { name, size = 24, class: className, label, ...rest } = Astro.props;
+// La anotación ensancha la unión que produce `satisfies` en icons.ts: sin
+// ella, las entradas que no declaran `mode` no exponen la propiedad.
+const icon: IconDef = icons[name];
+const mode = icon.mode ?? 'stroke';
+
+const semantics = label
+  ? ({ role: 'img', 'aria-label': label } as const)
+  : ({ 'aria-hidden': 'true', focusable: 'false' } as const);
+
+const paint =
+  mode === 'fill'
+    ? { fill: 'currentColor', stroke: 'none' }
+    : {
+        fill: 'none',
+        stroke: 'currentColor',
+        'stroke-width': 1.7,
+        'stroke-linecap': 'round' as const,
+        'stroke-linejoin': 'round' as const,
+      };
+---
+
+<svg
+  viewBox="0 0 24 24"
+  width={size}
+  height={size}
+  class={className}
+  {...paint}
+  {...semantics}
+  {...rest}
+  set:html={icon.body}
+/>

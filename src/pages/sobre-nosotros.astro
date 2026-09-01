@@ -1,0 +1,196 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import fachada from '@/assets/img/fachada-hospital.jpg';
+import Section from '@/components/ui/Section.astro';
+import Card from '@/components/ui/Card.astro';
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { whoWeAre, objective, pillars, testimonials, facebookReviewsUrl } from '@/data/about';
+import { site, contact, address } from '@/data/site';
+
+/**
+ * `timeZone: 'UTC'` no es opcional: `new Date('2025-07-02')` se interpreta
+ * como medianoche UTC, y al formatearlo en la hora local de Campeche (UTC-6)
+ * retrocede al día anterior. Sin esto, cada recomendación aparecería fechada
+ * un día antes del que su autor la publicó.
+ */
+const fechaLarga = new Intl.DateTimeFormat('es-MX', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<BaseLayout
+  title="Sobre Nosotros"
+  description="Hospital de alta especialidad certificado en San Francisco de Campeche: quiénes somos, nuestro objetivo y las recomendaciones de nuestros pacientes."
+>
+  {/* ---------- Quiénes somos ---------- */}
+  <Section labelledby="quienes-somos-titulo">
+    <div class="max-w-3xl">
+      <p class="mb-3 text-sm font-medium tracking-[0.14em] text-primary uppercase">
+        {whoWeAre.title}
+      </p>
+      <h1 id="quienes-somos-titulo" class="text-display">{whoWeAre.heading}</h1>
+      <p class="mt-6 text-xl leading-relaxed">{whoWeAre.body}</p>
+    </div>
+
+    {/* Fachada. Va sin `aspect` fijo y a su proporción original (2.74:1) para
+        no recortar ni el rótulo ni el acceso de urgencias de la izquierda;
+        Astro emite width y height, así que el hueco queda reservado igual. */}
+    <figure class="reveal mt-12">
+      <Image
+        src={fachada}
+        alt="Fachada del Centro Médico Campeche sobre la Avenida Colosio: edificio de dos plantas en tonos arena y turquesa, con el rótulo CENTRO MÉDICO CAMPECHE y el acceso de urgencias señalizado a la izquierda."
+        widths={[640, 960, 1254]}
+        sizes="(min-width: 80rem) 72rem, 100vw"
+        format="webp"
+        quality={80}
+        loading="lazy"
+        decoding="async"
+        class="w-full rounded-lg shadow-card"
+      />
+      <figcaption class="mt-3 text-sm text-muted">
+        Nuestras instalaciones en {address.street}, {address.neighborhood}.
+      </figcaption>
+    </figure>
+
+    <ul class="mt-14 grid gap-5 md:grid-cols-3">
+      {
+        pillars.map((pillar, index) => (
+          <Card as="li" index={index}>
+            <div class="flex h-full flex-col p-6 md:p-7">
+              <span class="flex h-12 w-12 items-center justify-center rounded-md bg-surface text-primary">
+                <Icon name={pillar.icon} size={26} />
+              </span>
+              <h2 class="mt-5 text-h3">{pillar.title}</h2>
+              <p class="mt-2 text-muted">{pillar.description}</p>
+            </div>
+          </Card>
+        ))
+      }
+    </ul>
+  </Section>
+
+  {/* ---------- Nuestro objetivo ---------- */}
+  <Section tone="surface" labelledby="objetivo-titulo">
+    <div class="grid gap-10 lg:grid-cols-12 lg:gap-16">
+      <div class="reveal lg:col-span-4">
+        <p class="mb-3 text-sm font-medium tracking-[0.14em] text-primary uppercase">
+          {objective.title}
+        </p>
+        <h2 id="objetivo-titulo" class="text-h2">{objective.heading}</h2>
+      </div>
+
+      <div class="reveal lg:col-span-8" style="--reveal-index: 1">
+        <p class="text-xl leading-relaxed">{objective.body}</p>
+
+        <p class="mt-8 text-lg text-muted">
+          Ese compromiso se traduce en algo concreto: explicar cada diagnóstico con
+          claridad, sostener protocolos de seguridad del paciente en cada área y
+          acompañar a quien nos visita durante todo el proceso, no solo durante el
+          procedimiento.
+        </p>
+      </div>
+    </div>
+  </Section>
+
+  {/* ---------- Recomendaciones ---------- */}
+  <Section labelledby="recomendaciones-titulo">
+    <div class="max-w-2xl">
+      <p class="mb-3 text-sm font-medium tracking-[0.14em] text-primary uppercase">
+        Recomendaciones
+      </p>
+      <h2 id="recomendaciones-titulo" class="text-h2">Lo que dicen nuestros pacientes</h2>
+      <p class="mt-4 text-lg text-muted">
+        Las opiniones se publican en la página de Facebook del hospital, donde cualquier
+        persona puede leerlas completas y dejar la suya.
+      </p>
+    </div>
+
+    {
+      testimonials.length > 0 ? (
+        <ul class="mt-12 grid gap-5 md:grid-cols-2">
+          {testimonials.map((item, index) => (
+            <Card as="li" index={index}>
+              <figure class="flex h-full flex-col p-6 md:p-7">
+                {/* Comilla decorativa: se oculta a los lectores de pantalla
+                    porque el elemento <blockquote> ya anuncia la cita. */}
+                <span
+                  class="font-[family-name:var(--font-serif)] text-5xl leading-none text-mid"
+                  aria-hidden="true"
+                >
+                  &ldquo;
+                </span>
+
+                <blockquote class="mt-2 flex-1 text-lg">
+                  <p>{item.quote}</p>
+                </blockquote>
+
+                <figcaption class="mt-6 flex items-center gap-3 border-t border-hairline pt-4 text-sm">
+                  <Icon name="facebook" size={18} class="shrink-0 text-primary" />
+                  <span>
+                    <span class="block font-medium text-deep">{item.author}</span>
+                    <time datetime={item.date} class="text-muted">
+                      {fechaLarga.format(new Date(item.date))} · Publicado en Facebook
+                    </time>
+                  </span>
+                </figcaption>
+              </figure>
+            </Card>
+          ))}
+        </ul>
+      ) : (
+        <div class="reveal mt-10 max-w-2xl rounded-lg border border-hairline bg-surface p-7">
+          <p class="text-lg">
+            Todavía no hemos traído las recomendaciones a esta página. Puede leerlas
+            todas, con el nombre y la fecha de quien las escribió, directamente en
+            Facebook.
+          </p>
+        </div>
+      )
+    }
+
+    <div class="reveal mt-8">
+      <Button
+        href={facebookReviewsUrl}
+        variant="primary"
+        icon="facebook"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Ver las opiniones en Facebook
+      </Button>
+      <span class="sr-only">(se abre en una pestaña nueva)</span>
+    </div>
+  </Section>
+
+  {/* ---------- Cierre ---------- */}
+  <Section tone="deep" compact labelledby="contacto-nosotros-titulo">
+    <div class="max-w-2xl">
+      <h2 id="contacto-nosotros-titulo" class="text-h2 text-white">
+        ¿Quiere conocernos en persona?
+      </h2>
+      <p class="mt-4 text-lg text-white/85">
+        Llámenos o escríbanos por WhatsApp y con gusto le orientamos sobre el servicio
+        que necesita en {site.name}.
+      </p>
+
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <Button href={contact.whatsapp.href} variant="primary" size="lg" icon="whatsapp">
+          Escribir por WhatsApp
+        </Button>
+        <Button
+          href={contact.switchboard.href}
+          variant="outline-light"
+          size="lg"
+          icon="phone"
+        >
+          {contact.switchboard.label}
+        </Button>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>

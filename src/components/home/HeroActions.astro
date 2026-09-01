@@ -1,0 +1,38 @@
+---
+import Button from '@/components/ui/Button.astro';
+import { contact } from '@/data/site';
+
+/**
+ * Acciones del hero.
+ *
+ * Van FIJAS debajo del carrusel y nunca dentro de una diapositiva: un botón
+ * que se desplaza solo cada seis segundos es imposible de pulsar con calma,
+ * y quien llega buscando urgencias no debería perseguirlo.
+ *
+ * Aquí está la primera de las dos apariciones del ámbar en toda la página
+ * (la otra es la sección de Maternidad).
+ */
+---
+
+<div class="bg-deep on-dark">
+  <div class="container-page pb-10 pt-8 md:pb-12">
+    <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+      <Button href="/contacto" variant="amber" size="lg" icon="calendar">Agendar cita</Button>
+
+      {/* El boton lleva el numero a la vista: quien llega con una urgencia
+          quiere verlo, no descubrirlo despues de pulsar. */}
+      <Button href={contact.emergency.href} variant="urgent" size="lg" icon="phone">
+        Urgencias 24 h · {contact.emergency.label}
+      </Button>
+    </div>
+
+    <p class="mt-5 max-w-xl text-base text-white/75">
+      {/* `{' '}` explicito: Astro descarta el salto de linea previo al enlace
+          y salia "directamente al981 175 6513". */}
+      ¿Es una emergencia? Llame directamente al{' '}
+      <a href={contact.emergency.href} class="font-medium text-aqua underline underline-offset-4">
+        {contact.emergency.label}
+      </a>. Atendemos las 24 horas, sin cita previa.
+    </p>
+  </div>
+</div>

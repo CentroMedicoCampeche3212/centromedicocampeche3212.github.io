@@ -1,0 +1,54 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+import Button from '@/components/ui/Button.astro';
+import PromotionCard from '@/components/ui/PromotionCard.astro';
+import { promotions } from '@/data/promotions';
+import { contact } from '@/data/site';
+---
+
+<BaseLayout
+  title="Promociones"
+  description="Promociones vigentes del Centro Médico Campeche: descuento en tomografía y servicio de colocación de aretes para bebés."
+>
+  <Section>
+    <div class="max-w-3xl">
+      <p class="mb-3 text-sm font-medium tracking-[0.14em] text-primary uppercase">
+        Promociones
+      </p>
+      <h1 class="text-display">Promociones vigentes</h1>
+      <p class="mt-6 text-xl leading-relaxed">
+        Servicios con precio preferente y condiciones especiales. Para cualquiera de
+        ellos puede escribirnos por WhatsApp o llamar al conmutador y le confirmamos
+        disponibilidad y requisitos.
+      </p>
+    </div>
+
+    <ul class="mt-14 grid items-start gap-6 md:grid-cols-2">
+      {
+        promotions.map((promo, index) => (
+          <PromotionCard promo={promo} index={index} headingLevel="h2" detailed />
+        ))
+      }
+    </ul>
+  </Section>
+
+  <Section tone="surface" compact labelledby="contacto-promos-titulo">
+    <div class="max-w-2xl">
+      <h2 id="contacto-promos-titulo" class="text-h2">¿Quiere aprovechar una promoción?</h2>
+      <p class="mt-4 text-lg text-muted">
+        Escríbanos por WhatsApp o llame al hospital y le explicamos el procedimiento, los
+        requisitos y cómo agendar.
+      </p>
+
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <Button href={contact.whatsapp.href} variant="primary" size="lg" icon="whatsapp">
+          Escribir por WhatsApp
+        </Button>
+        <Button href={contact.switchboard.href} variant="outline" size="lg" icon="phone">
+          Llamar al {contact.switchboard.label}
+        </Button>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>

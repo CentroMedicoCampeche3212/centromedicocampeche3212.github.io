@@ -1,0 +1,79 @@
+---
+import { getImage } from 'astro:assets';
+import logotipo from '@/assets/img/logo-cmc-completo.jpg';
+
+interface Props {
+  /** `dark` para el footer y otras superficies azul profundo. */
+  tone?: 'light' | 'dark';
+  /** El del header entra en el primer render; el del footer puede esperar. */
+  eager?: boolean;
+  class?: string;
+}
+
+const { tone = 'light', eager = false, class: className } = Astro.props;
+const isDark = tone === 'dark';
+
+/**
+ * Logotipo institucional, completo y en círculo.
+ *
+ * El archivo original es cuadrado y su anillo luminoso está inscrito en el
+ * cuadro, así que la máscara circular lo enmarca sin cortar nada del logotipo.
+ *
+ * El nombre del hospital va en HTML y no dentro de la imagen: a este tamaño
+ * el texto del logotipo es ilegible, y como texto real escala con el zoom del
+ * navegador y lo lee un lector de pantalla.
+ *
+ * Sobre nitidez: se piden anchos de hasta 224 px para una pieza que se ve a
+ * 56 px, de modo que en pantallas de 2x y 3x siga habiendo píxeles de sobra.
+ * El original es un JPG de 1254 px; para que el logotipo pueda ir sin el disco
+ * azul de fondo haría falta {{LOGOTIPO_PNG_O_SVG_CON_TRANSPARENCIA}}.
+ *
+ * Se usa `getImage` en lugar de <Image />: ese componente descarta `alt=""`, y
+ * aquí la imagen debe ser explícitamente decorativa —el nombre ya lo aporta el
+ * texto de al lado—. Un <img> sin `alt` no es lo mismo que uno con `alt=""`.
+ */
+const logo = await getImage({
+  src: logotipo,
+  widths: [112, 168, 224, 336],
+  format: 'webp',
+  quality: 90,
+});
+---
+
+<span class:list={['flex items-center gap-3', className]}>
+  <img
+    src={logo.src}
+    srcset={logo.srcSet.attribute}
+    sizes="(min-width: 40rem) 56px, 48px"
+    width={logotipo.width}
+    height={logotipo.height}
+    alt=""
+    loading={eager ? 'eager' : 'lazy'}
+    decoding="async"
+    class:list={[
+      'h-12 w-12 shrink-0 rounded-full object-cover sm:h-14 sm:w-14',
+      /* Sobre azul profundo el disco necesita un borde que lo separe del
+         fondo: el azul del logotipo es más claro que --color-deep. */
+      isDark && 'border border-hairline-dark',
+    ]}
+  />
+
+  <span class="flex flex-col leading-none">
+    <span
+      class:list={[
+        'font-[family-name:var(--font-serif)] text-lg font-semibold tracking-tight',
+        isDark ? 'text-white' : 'text-deep',
+      ]}
+    >
+      Centro Médico
+    </span>
+    <span
+      class:list={[
+        'mt-1 text-sm font-medium tracking-[0.2em] uppercase',
+        isDark ? 'text-aqua' : 'text-primary',
+      ]}
+    >
+      Campeche
+    </span>
+  </span>
+</span>

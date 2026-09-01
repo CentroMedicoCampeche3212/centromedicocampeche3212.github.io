@@ -1,0 +1,31 @@
+---
+import Section from '@/components/ui/Section.astro';
+import Val from '@/components/ui/Val.astro';
+import { stats } from '@/data/stats';
+
+/**
+ * Franja de confianza. Cada cifra va acompañada de una línea que la explica:
+ * un número suelto sobre fondo azul es decoración, no información.
+ */
+---
+
+<Section tone="deep" compact labelledby="confianza-titulo">
+  <h2 id="confianza-titulo" class="sr-only">El Centro Médico Campeche en cifras</h2>
+
+  <dl class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+    {
+      stats.map((stat, index) => (
+        <div class="reveal" style={`--reveal-index: ${index}`}>
+          <dt class="text-base font-medium text-aqua">{stat.label}</dt>
+          <dd>
+            <p class="mt-1 font-[family-name:var(--font-serif)] text-4xl font-semibold text-white">
+              <Val text={stat.value} />
+              {stat.suffix && <span class="text-2xl">{stat.suffix}</span>}
+            </p>
+            <p class="mt-2 text-base text-white/75">{stat.detail}</p>
+          </dd>
+        </div>
+      ))
+    }
+  </dl>
+</Section>

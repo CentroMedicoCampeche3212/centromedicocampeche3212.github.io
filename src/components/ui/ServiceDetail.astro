@@ -1,0 +1,222 @@
+---
+import { Image } from 'astro:assets';
+import Section from './Section.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import type { ServiceHighlight } from '@/data/serviceDetails';
+
+interface Props {
+  detail: ServiceHighlight;
+  /**
+   * Fotografía de la ficha. Es opcional: algunas piezas del cliente están tan
+   * cubiertas de gráficos que no dejan una foto limpia que recortar, y una
+   * ficha bien compuesta a una columna se lee mejor que una foto ilegible.
+   */
+  image?: ImageMetadata;
+  imageAlt?: string;
+  /**
+   * Relación de aspecto de la imagen en escritorio.
+   * `square` es para las piezas gráficas que ya traen su propio texto: la
+   * imagen es cuadrada y el marco también, así que se ve entera sin recorte.
+   */
+  imageRatio?: 'portrait' | 'landscape' | 'square';
+  tone?: 'white' | 'surface';
+  /** Coloca la imagen a la izquierda, para alternar el ritmo entre fichas. */
+  reverse?: boolean;
+  /** El rojo se reserva a urgencias, que es donde importa que salte a la vista. */
+  ctaVariant?: 'primary' | 'urgent';
+  /**
+   * En su propia página el título del servicio ES el encabezado principal.
+   * Cuando varias fichas comparten página, cada una baja a h2.
+   */
+  headingLevel?: 'h1' | 'h2';
+}
+
+const {
+  detail,
+  image,
+  imageAlt = '',
+  imageRatio = 'landscape',
+  tone = 'white',
+  reverse = false,
+  ctaVariant = 'primary',
+  headingLevel: Heading = 'h2',
+} = Astro.props;
+
+const titleId = `${detail.id}-titulo`;
+const isPortrait = imageRatio === 'portrait';
+const isSquare = imageRatio === 'square';
+
+/**
+ * Anchos del srcset y tope de presentación, ambos derivados del original.
+ *
+ * Casi todas estas fotos son recortes de piezas promocionales: van de 348 a
+ * 1020 px de ancho. Pedir un ancho mayor que el del archivo obliga al
+ * navegador a ampliarlo, y dejar que una foto de 350 px llene una columna de
+ * 512 px la deja blanda. Así que el srcset se corta en el ancho nativo y la
+ * imagen nunca se presenta por encima de él.
+ */
+const STEPS = [360, 480, 640, 960, 1280];
+const widths = image
+  ? [...new Set([...STEPS.filter((w) => w < image.width), image.width])]
+  : [];
+
+const columnRem = isPortrait ? 25 : 32;
+const slotRem = image ? Math.min(columnRem, Math.round(image.width / 16)) : columnRem;
+
+/* Las listas cortas caben en una columna; a partir de cinco puntos se
+   reparten en dos para no dejar una columna larguísima al lado de la foto. */
+const twoColumns = detail.features.length >= 5;
+---
+
+<Section
+  id={detail.id}
+  tone={tone}
+  labelledby={titleId}
+  class="anchor-target"
+>
+  <slot name="breadcrumb" />
+
+  {/* `items-start` y no `items-center`: centrar la foto contra la columna de
+      texto la hunde en las fichas de texto largo —urgencias y urología tienen
+      lista secundaria, y urgencias además ocho puntos de apoyo—, mientras que
+      en las de texto corto no se notaba. Alineando arriba, la foto arranca
+      siempre a la altura del antetítulo. */}
+  <div
+    class:list={[
+      'grid items-start gap-10',
+      image ? 'lg:grid-cols-2 lg:gap-16' : 'max-w-3xl',
+    ]}
+  >
+    {/* En móvil el texto siempre va primero: `order` solo se aplica desde lg. */}
+    {
+      image && (
+        <div class:list={['reveal', reverse && 'lg:order-last']}>
+          <Image
+            src={image}
+            alt={imageAlt}
+            widths={widths}
+            sizes={`(min-width: 64rem) ${slotRem}rem, 100vw`}
+            format="webp"
+            quality={82}
+            loading="lazy"
+            decoding="async"
+            class:list={[
+              'mx-auto w-full rounded-lg object-cover shadow-card',
+              isPortrait && 'aspect-[4/5]',
+              isSquare && 'aspect-square',
+              !isPortrait && !isSquare && 'aspect-[4/3]',
+            ]}
+            style={`max-width: ${slotRem}rem`}
+          />
+        </div>
+      )
+    }
+
+    <div class="reveal" style="--reveal-index: 1">
+      <p class="mb-3 text-sm font-medium tracking-[0.14em] text-primary uppercase">
+        {detail.eyebrow}
+      </p>
+
+      <Heading id={titleId} class:list={[Heading === 'h1' ? 'text-display' : 'text-h2']}>
+        {detail.title}
+      </Heading>
+
+      <p class="mt-5 text-lg">{detail.lead}</p>
+
+      {/* Ficha del especialista, cuando la consulta la lleva una persona
+          concreta: es el dato que más pesa al elegir médico. */}
+      {
+        detail.specialist && (
+          <p class="mt-7 flex items-start gap-3 rounded-lg border border-hairline bg-surface p-5">
+            <Icon name="stethoscope" size={22} class="mt-0.5 shrink-0 text-primary" />
+            <span>
+              <strong class="block font-medium text-deep">{detail.specialist.name}</strong>
+              <span class="text-muted">
+                {detail.specialist.role}
+                {detail.specialist.credential && ` · ${detail.specialist.credential}`}
+              </span>
+            </span>
+          </p>
+        )
+      }
+
+      {detail.featuresTitle && <h3 class="mt-8 text-h3">{detail.featuresTitle}</h3>}
+
+      <ul
+        class:list={[
+          'grid gap-3',
+          detail.featuresTitle ? 'mt-4' : 'mt-8',
+          twoColumns && 'sm:grid-cols-2',
+        ]}
+      >
+        {
+          detail.features.map((feature) => (
+            <li class="flex items-start gap-3">
+              <Icon name="check" size={22} class="mt-0.5 shrink-0 text-primary" />
+              <span>{feature}</span>
+            </li>
+          ))
+        }
+      </ul>
+
+      {
+        detail.secondary && (
+          <>
+            <h3 class="mt-8 text-h3">{detail.secondary.title}</h3>
+            <ul class="mt-4 grid gap-2 sm:grid-cols-2">
+              {detail.secondary.items.map((item) => (
+                <li class="flex items-start gap-3 text-muted">
+                  <span
+                    class="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-mid"
+                    aria-hidden="true"
+                  />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        )
+      }
+
+      {/* Atribución: se muestra cuando el servicio no lo presta el hospital. */}
+      {
+        detail.provider && (
+          <p class="mt-7 flex items-start gap-3 rounded-lg border border-hairline bg-surface p-5 text-base">
+            <Icon name="shield" size={22} class="mt-0.5 shrink-0 text-primary" />
+            <span>
+              Servicio a cargo de la <strong class="font-medium">{detail.provider}</strong>.
+              {detail.note && ` ${detail.note}`}
+            </span>
+          </p>
+        )
+      }
+
+      {
+        (detail.whatsapp || detail.phone) && (
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            {/* El teléfono va primero cuando la ficha es de urgencias: ahí
+                llamar es la acción correcta, no escribir y esperar. */}
+            {detail.phone && (
+              <Button href={detail.phone.href} variant={ctaVariant} size="lg" icon="phone">
+                Llamar al {detail.phone.label}
+              </Button>
+            )}
+            {detail.whatsapp && (
+              <Button
+                href={detail.whatsapp.href}
+                variant={detail.phone ? 'outline' : 'primary'}
+                size="lg"
+                icon="whatsapp"
+              >
+                {detail.whatsapp.label.startsWith('9')
+                  ? `WhatsApp ${detail.whatsapp.label}`
+                  : detail.whatsapp.label}
+              </Button>
+            )}
+          </div>
+        )
+      }
+    </div>
+  </div>
+</Section>

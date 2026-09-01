@@ -1,0 +1,28 @@
+---
+import Section from '@/components/ui/Section.astro';
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+import ServiceCard from '@/components/ui/ServiceCard.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { featuredServices } from '@/data/services';
+import { withBase } from '@/lib/url';
+---
+
+<Section tone="surface" labelledby="servicios-titulo">
+  <SectionHeader
+    id="servicios-titulo"
+    eyebrow="Servicios"
+    title="Todo lo que su familia necesita, en un solo lugar"
+    intro="Atención médica continua, estudios de diagnóstico y hospitalización con equipo propio."
+  />
+
+  <ul class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    {featuredServices.map((service, index) => <ServiceCard service={service} index={index} />)}
+  </ul>
+
+  <p class="reveal mt-10">
+    <a href={withBase('/servicios')} class="link-arrow text-lg">
+      Ver todos los servicios y especialidades
+      <Icon name="arrow-right" size={20} />
+    </a>
+  </p>
+</Section>

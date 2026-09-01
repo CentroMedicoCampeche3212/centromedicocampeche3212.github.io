@@ -1,0 +1,68 @@
+---
+import Logo from './Logo.astro';
+import MobileMenu from './MobileMenu.astro';
+import Button from '@/components/ui/Button.astro';
+import { mainNav } from '@/data/nav';
+import { withBase, isCurrentPath } from '@/lib/url';
+
+const pathname = Astro.url.pathname;
+
+/**
+ * Header pegajoso. Fondo blanco sólido (no translúcido): detrás pasan
+ * fotografías y el texto de la navegación debe conservar su contraste.
+ */
+---
+
+<header
+  class="sticky top-0 z-50 border-b border-hairline bg-white shadow-header"
+  data-site-header
+>
+  <div class="container-page">
+    <div class="flex min-h-[var(--header-height)] items-center justify-between gap-4 py-3">
+      <a
+        href={withBase('/')}
+        class="flex items-center rounded-sm"
+        aria-current={isCurrentPath(withBase('/'), pathname) ? 'page' : undefined}
+      >
+        <Logo eager />
+      </a>
+
+      <nav class="hidden lg:block" aria-label="Navegación principal">
+        <ul class="flex items-center gap-1">
+          {
+            mainNav.map((item) => {
+              const href = withBase(item.href);
+              const current = isCurrentPath(href, pathname);
+              return (
+                <li>
+                  <a
+                    href={href}
+                    aria-current={current ? 'page' : undefined}
+                    class:list={[
+                      'relative flex items-center rounded-sm px-3 text-base tap-target transition-colors',
+                      current
+                        ? 'font-semibold text-primary'
+                        : 'font-medium text-deep hover:text-primary',
+                      /* Subrayado del enlace activo, dibujado sin desplazar el texto */
+                      current &&
+                        'after:absolute after:inset-x-3 after:bottom-2 after:h-0.5 after:rounded-full after:bg-primary',
+                    ]}
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <Button href="/contacto" variant="primary" class="hidden sm:inline-flex" icon="calendar">
+          Agendar cita
+        </Button>
+        <MobileMenu />
+      </div>
+    </div>
+  </div>
+</header>

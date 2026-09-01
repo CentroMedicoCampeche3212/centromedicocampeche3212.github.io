@@ -1,0 +1,169 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+import Val from '@/components/ui/Val.astro';
+import bebe from '@/assets/img/maternidad-bebe.jpg';
+import {
+  maternityPackages,
+  maternityIncludes,
+  maternityExcludes,
+  maternityTerms,
+  maternityCurrency,
+  maternityValidity,
+} from '@/data/maternity';
+import { contact } from '@/data/site';
+---
+
+<BaseLayout
+  title="Paquetes de Maternidad"
+  description="Paquete de parto y paquete de cesárea con hospitalización en área VIP, uso de quirófano y enfermería especializada en el Centro Médico Campeche."
+>
+  {/* ---------- Encabezado ---------- */}
+  <Section>
+    <div class="grid gap-10 lg:grid-cols-12 lg:items-center lg:gap-16">
+      <div class="lg:col-span-7">
+        <p class="mb-3 text-sm font-medium tracking-[0.14em] text-primary uppercase">
+          Maternidad
+        </p>
+        <h1 class="text-display">Paquetes de Maternidad</h1>
+        <p class="mt-5 text-xl leading-relaxed">
+          Dos paquetes con todo lo necesario para el nacimiento: quirófano, habitación
+          VIP, enfermería especializada y alimentos. El costo se conoce desde la primera
+          consulta, sin cargos sorpresa al momento del alta.
+        </p>
+
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+          <Button href={contact.whatsapp.href} variant="amber" size="lg" icon="whatsapp">
+            Preguntar por WhatsApp
+          </Button>
+          <Button href={contact.switchboard.href} variant="outline" size="lg" icon="phone">
+            Llamar al {contact.switchboard.label}
+          </Button>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5">
+        <Image
+          src={bebe}
+          alt="Bebé de meses recostado sobre sus brazos, con mameluco gris, mirando a la cámara."
+          widths={[480, 720, 960]}
+          sizes="(min-width: 64rem) 28rem, 100vw"
+          format="webp"
+          quality={78}
+          loading="eager"
+          fetchpriority="high"
+          decoding="sync"
+          class="aspect-[4/5] w-full rounded-lg object-cover shadow-card"
+        />
+      </div>
+    </div>
+  </Section>
+
+  {/* ---------- Precios ---------- */}
+  <Section tone="surface" labelledby="precios-titulo">
+    <h2 id="precios-titulo" class="text-h2">Costo de cada paquete</h2>
+    <p class="mt-4 max-w-2xl text-lg text-muted">
+      Importes en {maternityCurrency.toLowerCase()}.
+      <Val text={`Vigencia: ${maternityValidity}`} />
+    </p>
+
+    <ul class="mt-10 grid gap-5 md:grid-cols-2">
+      {
+        maternityPackages.map((paquete, index) => (
+          <li
+            class:list={[
+              'reveal flex flex-col rounded-lg border bg-white p-7 shadow-card md:p-8',
+              paquete.featured ? 'border-mid' : 'border-hairline',
+            ]}
+            style={`--reveal-index: ${index}`}
+          >
+            <h3 class="text-h3">{paquete.name}</h3>
+
+            <p class="mt-3 font-[family-name:var(--font-serif)] text-5xl font-semibold text-primary">
+              {paquete.price}
+            </p>
+
+            <p class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-muted">
+              <Icon name="bed" size={20} class="shrink-0 text-mid" />
+              <span>{paquete.room}</span>
+              <span aria-hidden="true">·</span>
+              <span>{paquete.stay}</span>
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  {/* ---------- Incluye / no incluye ---------- */}
+  <Section labelledby="cobertura-titulo">
+    <h2 id="cobertura-titulo" class="text-h2">Qué incluye y qué no</h2>
+
+    <div class="mt-10 grid gap-10 lg:grid-cols-2 lg:gap-16">
+      <div class="reveal">
+        <h3 class="text-h3">Incluye</h3>
+        <ul class="mt-5 space-y-3">
+          {
+            maternityIncludes.map((item) => (
+              <li class="flex items-start gap-3">
+                <Icon name="check" size={22} class="mt-0.5 shrink-0 text-primary" />
+                <span>{item}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="reveal" style="--reveal-index: 1">
+        <h3 class="text-h3">No incluye</h3>
+        <ul class="mt-5 space-y-3">
+          {
+            maternityExcludes.map((item) => (
+              <li class="flex items-start gap-3">
+                <Icon name="close" size={22} class="mt-0.5 shrink-0 text-muted" />
+                <span class="text-muted">{item}</span>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="mt-8 rounded-lg border border-hairline bg-surface p-5">
+          <h4 class="text-base font-medium text-deep">Condiciones</h4>
+          <ul class="mt-3 space-y-2 text-sm text-muted">
+            {maternityTerms.map((term) => <li>{term}</li>)}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </Section>
+
+  {/* ---------- Cierre ---------- */}
+  <Section tone="deep" compact labelledby="contacto-maternidad-titulo">
+    <div class="max-w-2xl">
+      <h2 id="contacto-maternidad-titulo" class="text-h2 text-white">
+        ¿Le resolvemos una duda?
+      </h2>
+      <p class="mt-4 text-lg text-white/85">
+        Escríbanos por WhatsApp o llame al hospital y le explicamos el proceso completo,
+        desde el control prenatal hasta el alta.
+      </p>
+
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <Button href={contact.whatsapp.href} variant="primary" size="lg" icon="whatsapp">
+          Escribir por WhatsApp
+        </Button>
+        <Button
+          href={contact.switchboard.href}
+          variant="outline-light"
+          size="lg"
+          icon="phone"
+        >
+          {contact.switchboard.label}
+        </Button>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>

@@ -1,0 +1,71 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import Icon from './Icon.astro';
+import type { IconName } from './icons';
+import { withBase } from '@/lib/url';
+
+type Variant = 'primary' | 'amber' | 'urgent' | 'outline' | 'outline-light' | 'ghost';
+type Size = 'md' | 'lg';
+
+interface Props extends Omit<HTMLAttributes<'a'>, 'href' | 'size' | 'type'> {
+  /** Con href se emite un <a>; sin él, un <button>. */
+  href?: string;
+  variant?: Variant;
+  size?: Size;
+  icon?: IconName;
+  iconPosition?: 'start' | 'end';
+  type?: 'button' | 'submit';
+  class?: string;
+}
+
+const {
+  href,
+  variant = 'primary',
+  size = 'md',
+  icon,
+  iconPosition = 'start',
+  type = 'button',
+  class: className,
+  ...rest
+} = Astro.props;
+
+/**
+ * El ámbar lleva texto tinta y no blanco: blanco sobre #E39A2C da 2.3:1,
+ * muy por debajo de AA. Con #12222E encima el contraste sube a 6.9:1.
+ */
+const variants: Record<Variant, string> = {
+  primary: 'bg-primary text-white hover:bg-primary-hover shadow-card',
+  amber: 'bg-amber text-ink hover:bg-amber-hover shadow-card',
+  urgent: 'bg-urgent text-white hover:bg-urgent-hover shadow-card',
+  outline: 'border border-hairline-strong text-deep bg-white hover:bg-surface',
+  'outline-light': 'border border-hairline-dark text-white hover:bg-white/12',
+  ghost: 'text-primary hover:bg-surface',
+};
+
+const sizes: Record<Size, string> = {
+  md: 'px-5 py-3 text-base gap-2',
+  lg: 'px-6 py-4 text-lg gap-2.5 sm:px-8',
+};
+
+const classes = [
+  'inline-flex items-center justify-center rounded-sm font-medium tap-target',
+  'transition-colors duration-150 ease-[var(--ease-out-soft)]',
+  'text-center leading-tight',
+  sizes[size],
+  variants[variant],
+  className,
+]
+  .filter(Boolean)
+  .join(' ');
+
+const Tag = href ? 'a' : 'button';
+const tagProps = href
+  ? { href: withBase(href) }
+  : { type };
+---
+
+<Tag class={classes} {...tagProps} {...rest}>
+  {icon && iconPosition === 'start' && <Icon name={icon} size={size === 'lg' ? 22 : 20} />}
+  <span><slot /></span>
+  {icon && iconPosition === 'end' && <Icon name={icon} size={size === 'lg' ? 22 : 20} />}
+</Tag>

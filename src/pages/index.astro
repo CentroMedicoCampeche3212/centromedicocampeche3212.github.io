@@ -1,0 +1,41 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import HeroCarousel from '@/components/home/HeroCarousel.astro';
+import HeroActions from '@/components/home/HeroActions.astro';
+import AboutIntro from '@/components/home/AboutIntro.astro';
+import QuickAccess from '@/components/home/QuickAccess.astro';
+import FeaturedServices from '@/components/home/FeaturedServices.astro';
+import TrustBand from '@/components/home/TrustBand.astro';
+import Maternity from '@/components/home/Maternity.astro';
+import Promotions from '@/components/home/Promotions.astro';
+import LocationHours from '@/components/home/LocationHours.astro';
+import { site } from '@/data/site';
+---
+
+<BaseLayout title={`${site.name} | Hospital privado en San Francisco de Campeche`} bareTitle>
+  {/*
+    El <h1> de la página vive aquí y no en una diapositiva del carrusel:
+    el encabezado principal de un documento no puede cambiar cada seis
+    segundos. Es visualmente oculto porque el titular que se ve es el de
+    la diapositiva activa, que ya comunica lo mismo.
+  */}
+  <h1 class="sr-only">
+    {site.name}: hospital privado en San Francisco de Campeche con urgencias las 24 horas
+  </h1>
+
+  <HeroCarousel />
+  <HeroActions />
+
+  {/* La declaración institucional va inmediatamente después del carrusel.
+      Sustituye a la antigua sección «Sobre nosotros» del final, que era
+      texto de relleno inventado: ahora hay texto real del hospital y no
+      tiene sentido repetir el tema dos veces en la misma página. */}
+  <AboutIntro />
+
+  <QuickAccess />
+  <FeaturedServices />
+  <TrustBand />
+  <Maternity />
+  <Promotions />
+  <LocationHours />
+</BaseLayout>

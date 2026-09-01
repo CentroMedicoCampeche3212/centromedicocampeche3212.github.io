@@ -1,0 +1,123 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+import ServiceDetail from '@/components/ui/ServiceDetail.astro';
+import { serviceCatalog, otherServices, type ServiceEntry } from '@/data/serviceCatalog';
+import { serviceHref } from '@/data/services';
+import { contact } from '@/data/site';
+import { withBase } from '@/lib/url';
+
+/**
+ * Una página por servicio.
+ *
+ * `getStaticPaths` se ejecuta en el build y Astro escribe un index.html por
+ * cada entrada del catálogo: /servicios/urgencias/, /servicios/ucin/, etc.
+ * Son archivos estáticos, así que GitHub Pages los sirve sin configuración
+ * extra; no hace falta servidor ni redirecciones.
+ */
+export function getStaticPaths() {
+  return serviceCatalog.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+interface Props {
+  entry: ServiceEntry;
+}
+
+const { entry } = Astro.props;
+const { detail, card } = entry;
+const restantes = otherServices(entry.slug);
+
+/* La descripción se recorta a ~155 caracteres, que es lo que muestra Google. */
+const description =
+  detail.lead.length > 155 ? `${detail.lead.slice(0, 152).trimEnd()}…` : detail.lead;
+
+const volverHref = withBase('/servicios');
+---
+
+<BaseLayout title={card.title} description={description}>
+  <ServiceDetail
+    detail={detail}
+    image={entry.image}
+    imageAlt={entry.imageAlt}
+    imageRatio={entry.imageRatio}
+    ctaVariant={entry.ctaVariant}
+    headingLevel="h1"
+  >
+    {/* Migas de pan: sitúan la página y dan la primera vía de vuelta, antes
+        de leer nada. La segunda va al pie, para quien llega hasta abajo. */}
+    <nav slot="breadcrumb" aria-label="Ruta de navegación" class="mb-8">
+      <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+        <li>
+          <a href={volverHref} class="link-inline">Servicios</a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li aria-current="page" class="font-medium text-deep">{card.title}</li>
+      </ol>
+    </nav>
+  </ServiceDetail>
+
+  {/* ---------- Volver y resto de servicios ---------- */}
+  <Section tone="surface" labelledby="otros-servicios-titulo">
+    <div class="flex flex-wrap items-center justify-between gap-6">
+      <h2 id="otros-servicios-titulo" class="text-h2">Otros servicios</h2>
+
+      <Button href="/servicios" variant="outline" icon="chevron-left">
+        Volver a Servicios
+      </Button>
+    </div>
+
+    <ul class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        restantes.map((otro, index) => (
+          <li
+            class="reveal rounded-lg border border-hairline bg-white shadow-card"
+            style={`--reveal-index: ${index}`}
+          >
+            <a
+              href={withBase(serviceHref(otro.slug))}
+              class="flex items-center gap-4 p-5 tap-target"
+            >
+              <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-surface text-primary">
+                <Icon name={otro.card.icon} size={24} />
+              </span>
+              <span class="font-medium text-deep">{otro.card.title}</span>
+              <Icon name="arrow-right" size={18} class="ml-auto shrink-0 text-primary" />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  {/* ---------- Contacto ---------- */}
+  <Section tone="deep" compact labelledby="contacto-servicio-titulo">
+    <div class="max-w-2xl">
+      <h2 id="contacto-servicio-titulo" class="text-h2 text-white">
+        ¿Tiene alguna duda sobre este servicio?
+      </h2>
+      <p class="mt-4 text-lg text-white/85">
+        Llámenos o escríbanos por WhatsApp y le confirmamos disponibilidad, requisitos y
+        horarios.
+      </p>
+
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <Button href={contact.whatsapp.href} variant="primary" size="lg" icon="whatsapp">
+          Escribir por WhatsApp
+        </Button>
+        <Button
+          href={contact.switchboard.href}
+          variant="outline-light"
+          size="lg"
+          icon="phone"
+        >
+          {contact.switchboard.label}
+        </Button>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>

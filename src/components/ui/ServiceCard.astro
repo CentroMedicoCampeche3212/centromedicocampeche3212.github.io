@@ -1,0 +1,53 @@
+---
+import Card from './Card.astro';
+import Icon from './Icon.astro';
+import Val from './Val.astro';
+import { serviceHref, type Service } from '@/data/services';
+import { withBase } from '@/lib/url';
+
+interface Props {
+  service: Service;
+  index?: number;
+  /**
+   * Nivel del encabezado, para respetar la jerarquía de cada página.
+   * No se llama `as` a propósito: ese nombre rompe la inferencia de
+   * `Astro.props` y choca con el `as` de Card, que elige la etiqueta.
+   */
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { service, index = 0, headingLevel: Heading = 'h3' } = Astro.props;
+
+/**
+ * Tarjeta de servicio.
+ *
+ * Toda la superficie lleva a la página del servicio. El enlace se estira con
+ * un pseudoelemento en lugar de envolver la tarjeta entera: así el destino
+ * aparece una sola vez en el orden de tabulación y el nombre accesible del
+ * enlace es el título del servicio, no todo el contenido de la tarjeta.
+ */
+const href = withBase(serviceHref(service.slug));
+---
+
+<Card as="li" index={index} interactive>
+  <div class="flex h-full items-start gap-4 p-6">
+    <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-surface text-primary">
+      <Icon name={service.icon} size={26} />
+    </span>
+
+    <div class="min-w-0">
+      <Heading class="text-h3">
+        <a href={href} class="after:absolute after:inset-0 after:rounded-lg">
+          {service.title}
+        </a>
+      </Heading>
+
+      <p class="mt-1 text-muted"><Val text={service.summary} /></p>
+
+      <span class="mt-3 inline-flex items-center gap-2 text-sm font-medium text-primary">
+        Ver detalle
+        <Icon name="arrow-right" size={17} />
+      </span>
+    </div>
+  </div>
+</Card>

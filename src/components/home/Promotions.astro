@@ -1,0 +1,28 @@
+---
+import Section from '@/components/ui/Section.astro';
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+import PromotionCard from '@/components/ui/PromotionCard.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { promotions } from '@/data/promotions';
+import { withBase } from '@/lib/url';
+---
+
+<Section tone="surface" labelledby="promociones-titulo">
+  <SectionHeader
+    id="promociones-titulo"
+    eyebrow="Promociones"
+    title="Vigentes este mes"
+    intro="Precios preferentes y servicios con condiciones especiales. Consulte los detalles antes de agendar."
+  />
+
+  <ul class="mt-12 grid items-start gap-6 md:grid-cols-2">
+    {promotions.map((promo, index) => <PromotionCard promo={promo} index={index} />)}
+  </ul>
+
+  <p class="reveal mt-10">
+    <a href={withBase('/promociones')} class="link-arrow text-lg">
+      Ver el detalle de cada promoción
+      <Icon name="arrow-right" size={20} />
+    </a>
+  </p>
+</Section>

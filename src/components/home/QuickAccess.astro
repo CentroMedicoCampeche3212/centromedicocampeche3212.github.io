@@ -1,0 +1,70 @@
+---
+import Section from '@/components/ui/Section.astro';
+import Card from '@/components/ui/Card.astro';
+import Icon from '@/components/ui/Icon.astro';
+import Val from '@/components/ui/Val.astro';
+import { quickAccess } from '@/data/quickAccess';
+import { withBase } from '@/lib/url';
+
+/**
+ * Cuatro accesos grandes. Cada tarjeta lleva un único enlace, estirado con
+ * un pseudoelemento para que toda la superficie sea pulsable sin duplicar
+ * destinos en el orden de tabulación.
+ */
+---
+
+<Section labelledby="accesos-rapidos-titulo" class="anchor-target">
+  <h2 id="accesos-rapidos-titulo" class="sr-only">Accesos rápidos</h2>
+
+  <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    {
+      quickAccess.map((item, index) => {
+        const featured = item.tone === 'featured';
+        const isExternal = item.href.startsWith('tel:') || item.href.startsWith('http');
+
+        return (
+          <Card
+            as="li"
+            index={index}
+            interactive
+            tone={featured ? 'deep' : 'white'}
+          >
+            <div class="flex h-full flex-col p-6 md:p-7">
+              <span
+                class:list={[
+                  'flex h-14 w-14 items-center justify-center rounded-md',
+                  featured ? 'bg-white/12 text-aqua' : 'bg-surface text-primary',
+                ]}
+              >
+                <Icon name={item.icon} size={28} />
+              </span>
+
+              <h3 class:list={['mt-5 text-h3', featured && 'text-white']}>
+                <a
+                  href={isExternal ? item.href : withBase(item.href)}
+                  class="after:absolute after:inset-0 after:rounded-lg"
+                >
+                  {item.title}
+                </a>
+              </h3>
+
+              <p class:list={['mt-2 flex-1', featured ? 'text-white/80' : 'text-muted']}>
+                <Val text={item.description} />
+              </p>
+
+              <span
+                class:list={[
+                  'mt-5 inline-flex items-center gap-2 font-medium',
+                  featured ? 'text-aqua' : 'text-primary',
+                ]}
+              >
+                {item.cta}
+                <Icon name="arrow-right" size={18} />
+              </span>
+            </div>
+          </Card>
+        );
+      })
+    }
+  </ul>
+</Section>

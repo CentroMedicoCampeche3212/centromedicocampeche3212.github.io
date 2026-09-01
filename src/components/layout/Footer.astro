@@ -1,0 +1,143 @@
+---
+import Logo from './Logo.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { mainNav, footerNav } from '@/data/nav';
+import Val from '@/components/ui/Val.astro';
+import { site, address, contact, socials, schedule, uniqueByHref } from '@/data/site';
+import { withBase } from '@/lib/url';
+
+const year = new Date().getFullYear();
+
+/** Los dos horarios que más se consultan; el resto vive en la sección de ubicación. */
+const highlightedSchedule = schedule.slice(0, 2);
+
+/* Se deduplica por si dos entradas volvieran a compartir número. */
+const contactLinks = uniqueByHref([
+  { ...contact.emergency, icon: 'phone' as const },
+  { ...contact.switchboard, icon: 'phone' as const },
+  { ...contact.whatsapp, icon: 'whatsapp' as const },
+]);
+---
+
+<footer class="on-dark bg-deep text-white">
+  <div class="container-page py-14 md:py-20">
+    <div class="grid gap-12 md:grid-cols-2 lg:grid-cols-4 lg:gap-10">
+      {/* ---------- Identidad ---------- */}
+      <div class="lg:col-span-1">
+        <Logo tone="dark" />
+        <p class="mt-5 max-w-xs text-base text-white/80">
+          {site.tagline}. Urgencias las 24 horas, todos los días del año.
+        </p>
+
+        <ul class="mt-6 flex items-center gap-2" aria-label="Redes sociales">
+          {
+            socials.map((social) => (
+              <li>
+                <a
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center justify-center rounded-sm text-white tap-target transition-colors hover:bg-white/12 hover:text-aqua"
+                >
+                  <Icon
+                    name={social.icon}
+                    size={22}
+                    label={`${site.shortName} en ${social.name} (se abre en una pestaña nueva)`}
+                  />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      {/* ---------- Contacto ---------- */}
+      <div>
+        <h2 class="text-h3 text-white">Contacto</h2>
+        <ul class="mt-5 space-y-1">
+          {
+            contactLinks.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class="flex items-start gap-3 py-2 tap-target text-white/85 transition-colors hover:text-aqua"
+                >
+                  <Icon name={item.icon} size={19} class="mt-1 shrink-0 text-aqua" />
+                  <span>
+                    <span class="block font-medium text-white">{item.label}</span>
+                    <span class="block text-sm text-white/70">{item.note}</span>
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      {/* ---------- Ubicación y horarios ---------- */}
+      <div>
+        <h2 class="text-h3 text-white">Ubicación</h2>
+        <address class="mt-5 not-italic text-white/85">
+          <span class="block">{address.street}</span>
+          <span class="block">{address.neighborhood}</span>
+          <span class="block">
+            {address.city}, {address.state}. C.P. {address.postalCode}
+          </span>
+        </address>
+
+        <dl class="mt-6 space-y-2 text-sm">
+          {
+            highlightedSchedule.map((entry) => (
+              <div>
+                <dt class="font-medium text-white">{entry.service}</dt>
+                <dd class="text-white/70"><Val text={entry.hours} /></dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+
+      {/* ---------- Navegación ---------- */}
+      <nav aria-labelledby="footer-nav-title">
+        <h2 id="footer-nav-title" class="text-h3 text-white">Navegación</h2>
+        <ul class="mt-5">
+          {
+            mainNav.map((item) => (
+              <li>
+                <a
+                  href={withBase(item.href)}
+                  class="flex items-center py-2 tap-target text-white/85 transition-colors hover:text-aqua"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  {/* ---------- Línea legal ---------- */}
+  <div class="border-t border-hairline-dark">
+    <div
+      class="container-page flex flex-col items-center justify-between gap-2 py-6 text-sm text-white/70 md:flex-row"
+    >
+      <p>© {year} {site.name}. Todos los derechos reservados.</p>
+      <ul class="flex flex-wrap items-center justify-center gap-x-6">
+        {
+          footerNav.map((item) => (
+            <li>
+              <a
+                href={withBase(item.href)}
+                class="flex items-center py-2 tap-target underline underline-offset-4 transition-colors hover:text-aqua"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</footer>

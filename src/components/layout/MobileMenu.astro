@@ -1,0 +1,150 @@
+---
+import Icon from '@/components/ui/Icon.astro';
+import Button from '@/components/ui/Button.astro';
+import { mainNav } from '@/data/nav';
+import { contact } from '@/data/site';
+import { withBase, isCurrentPath } from '@/lib/url';
+
+const pathname = Astro.url.pathname;
+---
+
+{/* Disparador: solo existe en móvil. El estado vive en aria-expanded. */}
+<button
+  type="button"
+  id="menu-toggle"
+  class="flex items-center justify-center rounded-sm text-deep tap-target transition-colors hover:bg-surface lg:hidden"
+  aria-expanded="false"
+  aria-controls="menu-movil"
+  aria-label="Abrir menú de navegación"
+>
+  <Icon name="menu" size={26} data-menu-icon="open" />
+  <Icon name="close" size={26} data-menu-icon="close" class="hidden" />
+</button>
+
+{/* Panel. `hidden` lo saca del orden de tabulación mientras está cerrado.
+    El borde superior NO puede ser un valor fijo: el header es pegajoso y
+    arranca debajo de la barra de contacto mientras la página está arriba del
+    todo, así que a 5rem el panel se montaba encima del header. La posición
+    real la calcula el script al abrir. */}
+<div
+  id="menu-movil"
+  hidden
+  style="top: var(--header-height)"
+  class="fixed inset-x-0 bottom-0 z-40 overflow-y-auto overscroll-contain border-t border-hairline bg-white lg:hidden"
+>
+  <nav class="container-page py-6" aria-label="Navegación principal (móvil)">
+    <ul class="flex flex-col">
+      {
+        mainNav.map((item) => {
+          const href = withBase(item.href);
+          const current = isCurrentPath(href, pathname);
+          return (
+            <li class="border-b border-hairline last:border-b-0">
+              <a
+                href={href}
+                aria-current={current ? 'page' : undefined}
+                class:list={[
+                  'flex items-center py-4 text-lg tap-target transition-colors',
+                  current ? 'font-semibold text-primary' : 'text-deep hover:text-primary',
+                ]}
+              >
+                {item.label}
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+
+    <div class="mt-8 flex flex-col gap-3">
+      {/* Azul y no ámbar: el ámbar se reserva para el CTA del hero y
+          la sección de Maternidad, dos apariciones en toda la página. */}
+      <Button href="/contacto" variant="primary" size="lg" icon="calendar">Agendar cita</Button>
+      <Button href={contact.emergency.href} variant="urgent" size="lg" icon="phone">
+        Urgencias 24 h
+      </Button>
+    </div>
+  </nav>
+</div>
+
+<script>
+  /**
+   * Menú móvil accesible.
+   *
+   * - `aria-expanded` en el botón es la única fuente de verdad del estado.
+   * - Mientras está abierto se atrapa el foco dentro del panel: con el
+   *   fondo bloqueado, tabular hasta el pie de página sería desconcertante.
+   * - Escape cierra y devuelve el foco al botón.
+   * - Al pasar a escritorio se cierra solo, para que el panel no quede
+   *   abierto e invisible reteniendo el scroll del documento.
+   */
+  const toggle = document.getElementById('menu-toggle');
+  const panel = document.getElementById('menu-movil');
+
+  if (toggle && panel) {
+    const iconOpen = toggle.querySelector<SVGElement>('[data-menu-icon="open"]');
+    const iconClose = toggle.querySelector<SVGElement>('[data-menu-icon="close"]');
+    const header = document.querySelector<HTMLElement>('[data-site-header]');
+    const desktop = window.matchMedia('(width >= 64rem)');
+
+    const focusables = () =>
+      Array.from(
+        panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
+      ).filter((el) => el.offsetParent !== null);
+
+    const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
+
+    function setOpen(open: boolean) {
+      toggle!.setAttribute('aria-expanded', String(open));
+      toggle!.setAttribute(
+        'aria-label',
+        open ? 'Cerrar menú de navegación' : 'Abrir menú de navegación',
+      );
+      if (open && header) {
+        /* El panel arranca justo donde termina el header, sea cual sea la
+           posición de scroll. Basta calcularlo al abrir: mientras el menú
+           está abierto el documento no se desplaza. */
+        panel!.style.top = `${Math.max(0, Math.round(header.getBoundingClientRect().bottom))}px`;
+      }
+
+      panel!.hidden = !open;
+      iconOpen?.classList.toggle('hidden', open);
+      iconClose?.classList.toggle('hidden', !open);
+      document.documentElement.style.overflow = open ? 'hidden' : '';
+
+      if (open) focusables()[0]?.focus();
+    }
+
+    toggle.addEventListener('click', () => setOpen(!isOpen()));
+
+    document.addEventListener('keydown', (event) => {
+      if (!isOpen()) return;
+
+      if (event.key === 'Escape') {
+        setOpen(false);
+        toggle.focus();
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+
+      // Ciclo de foco: el botón hamburguesa cuenta como primer elemento.
+      const items = [toggle, ...focusables()];
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+
+    desktop.addEventListener('change', (event) => {
+      if (event.matches && isOpen()) setOpen(false);
+    });
+  }
+</script>

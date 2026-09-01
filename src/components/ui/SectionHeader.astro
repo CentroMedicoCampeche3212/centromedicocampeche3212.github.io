@@ -1,0 +1,44 @@
+---
+interface Props {
+  /** Antetítulo. Es decorativo: nunca sustituye al encabezado real. */
+  eyebrow?: string;
+  title: string;
+  /** id del <h2>, para enlazarlo con aria-labelledby de la sección. */
+  id: string;
+  intro?: string;
+  align?: 'start' | 'center';
+  tone?: 'light' | 'dark';
+}
+
+const { eyebrow, title, id, intro, align = 'start', tone = 'light' } = Astro.props;
+
+const isDark = tone === 'dark';
+---
+
+<header
+  class:list={[
+    'reveal max-w-2xl',
+    align === 'center' && 'mx-auto text-center',
+  ]}
+>
+  {
+    eyebrow && (
+      <p
+        class:list={[
+          'mb-3 text-sm font-medium tracking-[0.14em] uppercase',
+          isDark ? 'text-aqua' : 'text-primary',
+        ]}
+      >
+        {eyebrow}
+      </p>
+    )
+  }
+
+  <h2 id={id} class:list={['text-h2', isDark && 'text-white']}>{title}</h2>
+
+  {
+    intro && (
+      <p class:list={['mt-4 text-lg', isDark ? 'text-white/85' : 'text-muted']}>{intro}</p>
+    )
+  }
+</header>

@@ -1,0 +1,130 @@
+---
+// Fuentes autoalojadas: solo los pesos que el sistema de diseño usa.
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/source-serif-4/600.css';
+import '@/styles/global.css';
+
+import UtilityBar from '@/components/layout/UtilityBar.astro';
+import Header from '@/components/layout/Header.astro';
+import Footer from '@/components/layout/Footer.astro';
+import { site, address, contact, socials } from '@/data/site';
+import { withBase } from '@/lib/url';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** El título de Inicio no lleva el sufijo del nombre del hospital. */
+  bareTitle?: boolean;
+}
+
+const { title, description = site.description, bareTitle = false } = Astro.props;
+
+const fullTitle = bareTitle ? title : `${title} | ${site.name}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+
+/**
+ * Datos estructurados. Los valores con {{DOBLE_LLAVE}} deben sustituirse
+ * antes de publicar: un dato de contacto falso en el marcado semántico
+ * puede terminar en la ficha del negocio en buscadores.
+ */
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Hospital',
+  name: site.name,
+  description: site.description,
+  url: canonical.origin + withBase('/'),
+  telephone: contact.switchboard.href.replace('tel:', ''),
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: address.street,
+    addressLocality: address.city,
+    addressRegion: address.state,
+    postalCode: address.postalCode,
+    addressCountry: 'MX',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: address.latitude,
+    longitude: address.longitude,
+  },
+  hasMap: address.placeUrl,
+  sameAs: socials.map((social) => social.href),
+  // Urgencias abiertas siempre; los horarios por área van en la propia página.
+  openingHours: 'Mo-Su 00:00-23:59',
+  availableService: {
+    '@type': 'MedicalProcedure',
+    name: 'Paquetes de maternidad: parto y cesárea',
+  },
+};
+---
+
+<!doctype html>
+<html lang="es-MX">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical.href} />
+
+    <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+    <meta name="theme-color" content="#0A2540" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_MX" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical.href} />
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+  </head>
+
+  <body class="flex min-h-dvh flex-col">
+    <a href="#contenido" class="skip-link rounded-sm bg-deep px-5 py-3 text-white">
+      Saltar al contenido principal
+    </a>
+
+    <UtilityBar />
+    <Header />
+
+    <main id="contenido" class="flex-1">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <script>
+      /**
+       * Aparición al hacer scroll.
+       *
+       * El CSS solo esconde `.reveal` dentro de `prefers-reduced-motion:
+       * no-preference`, así que este script únicamente añade el atributo que
+       * dispara la transición. Si no se ejecuta —o si el usuario pidió menos
+       * movimiento— el contenido ya es visible: la lectura nunca depende de JS.
+       */
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const items = document.querySelectorAll<HTMLElement>('.reveal');
+
+      if (reduced || !('IntersectionObserver' in window)) {
+        items.forEach((item) => item.setAttribute('data-revealed', ''));
+      } else {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              entry.target.setAttribute('data-revealed', '');
+              observer.unobserve(entry.target);
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
+        );
+
+        items.forEach((item) => observer.observe(item));
+      }
+    </script>
+  </body>
+</html>

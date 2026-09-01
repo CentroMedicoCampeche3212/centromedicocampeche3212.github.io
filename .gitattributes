@@ -1,0 +1,10 @@
+# El workflow de despliegue corre en Ubuntu: se normalizan los saltos de linea
+# a LF en el repositorio para que no haya diferencias entre Windows y el CI.
+* text=auto eol=lf
+
+# Binarios: git no debe tocarlos.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
