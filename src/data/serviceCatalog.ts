@@ -90,7 +90,7 @@ const presentation: Record<
     detail: nutricion,
     image: nutricionImg,
     imageAlt:
-      'La nutrióloga Alejandra Infanzo Domínguez en consulta, junto a una charola de fruta, ' +
+      'La nutrióloga Alejandra Infanzón Domínguez en consulta, junto a una charola de fruta, ' +
       'pan y una lámina del plato del buen comer.',
   },
 };

@@ -154,7 +154,7 @@ export const urologia: ServiceHighlight = {
   title: 'Su experto en urología',
   lead:
     'En el Centro Médico Campeche contamos con atención urológica a cargo del ' +
-    'doctor Manuel Hernández Pérez, especialista con más de treinta años de ' +
+    'Dr. Manuel Hernández Pérez, especialista con más de treinta años de ' +
     'experiencia.',
   featuresTitle: 'Qué ofrece la consulta',
   features: [
@@ -200,8 +200,10 @@ export const nutricion: ServiceHighlight = {
     'Acompañamiento durante el tratamiento médico',
   ],
   specialist: {
-    name: 'Nutrióloga Alejandra Infanzo Domínguez',
+    name: 'Nutrióloga Alejandra Infanzón Domínguez',
     role: 'Nutrición clínica',
   },
+  /* El mismo número atiende llamada y WhatsApp. */
   phone: { label: '981 107 3076', href: 'tel:+529811073076' },
+  whatsapp: { label: '981 107 3076', href: 'https://wa.me/5219811073076' },
 };
