@@ -196,8 +196,11 @@ Al reemplazar alguna, conserve los 1920x800 y **reescriba su `alt`** en
 `src/data/heroSlides.ts`, que transcribe el texto incrustado en la pieza.
 
 > Estas piezas se leen mal en un teléfono: su texto está compuesto para 1920 px
-> de ancho y en una pantalla de 375 px se reduce cinco veces. Para móvil hacen
-> falta versiones más cerradas, con el titular y poco más.
+> de ancho y en una pantalla de 375 px se reduce cinco veces. Se probó servir un
+> encuadre cerrado en el mensaje —el texto se leía casi al doble— pero el
+> cliente pide ver la pieza entera y cualquier recorte le quita parte, así que
+> se descartó. La solución real son versiones compuestas para móvil: mismo
+> mensaje, menos elementos, en proporción vertical o cuadrada.
 
 Pendiente `{{LOGOTIPO_PNG_O_SVG_CON_TRANSPARENCIA}}`: el logotipo actual es un
 JPG con fondo azul macizo, por eso se presenta como disco circular. Con un PNG

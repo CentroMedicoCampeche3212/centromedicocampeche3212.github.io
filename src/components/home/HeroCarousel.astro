@@ -26,34 +26,21 @@ const backdrops = await Promise.all(
 );
 
 /**
- * Dirección de arte: dos encuadres distintos, no dos tamaños del mismo.
+ * Cada pieza, en los anchos que su original permite.
  *
- * `<Image />` no sirve aquí porque solo escala una imagen; hace falta un
- * <picture> con <source media> para que el navegador elija ARCHIVO según el
- * ancho de pantalla. Se compone con `getImage`, que además deja escribir el
- * <img> a mano y conservar el `alt`.
+ * Se sirve LA MISMA imagen en todos los tamaños, sin encuadres alternativos:
+ * el cliente pide que la pieza se vea completa, y cualquier recorte para
+ * agrandar el texto en el teléfono le corta parte del mensaje.
  */
-const MOBILE_QUERY = '(max-width: 39.999rem)';
-
 const sources = await Promise.all(
-  heroSlides.map(async (slide, index) => {
-    const eager = index === 0;
-    const [ancha, movil] = await Promise.all([
-      getImage({
-        src: slide.image,
-        widths: [640, 960, 1280, 1920].filter((w) => w <= slide.image.width),
-        format: 'webp',
-        quality: 82,
-      }),
-      getImage({
-        src: slide.imageMobile,
-        widths: [420, 640, slide.imageMobile.width],
-        format: 'webp',
-        quality: 84,
-      }),
-    ]);
-    return { ancha, movil, eager };
-  }),
+  heroSlides.map((slide) =>
+    getImage({
+      src: slide.image,
+      widths: [640, 960, 1280, 1920].filter((w) => w <= slide.image.width),
+      format: 'webp',
+      quality: 82,
+    }),
+  ),
 );
 
 /**
@@ -98,31 +85,23 @@ const sources = await Promise.all(
               class="hero-backdrop absolute inset-0 h-full w-full object-cover"
             />
 
-            <picture>
-              <source
-                media={MOBILE_QUERY}
-                srcset={sources[index]!.movil.srcSet.attribute}
-                sizes="100vw"
-                type="image/webp"
-              />
-              <img
-                src={sources[index]!.ancha.src}
-                srcset={sources[index]!.ancha.srcSet.attribute}
-                sizes="100vw"
-                alt={slide.alt}
-                width={slide.image.width}
-                height={slide.image.height}
-                loading={index === 0 ? 'eager' : 'lazy'}
-                fetchpriority={index === 0 ? 'high' : 'auto'}
-                decoding={index === 0 ? 'sync' : 'async'}
-                class:list={[
-                  'absolute inset-0 h-full w-full',
-                  /* La pieza gráfica se muestra entera: recortarla cortaría su
-                     propio texto. La fotografía sí llena el marco. */
-                  slide.mode === 'banner' ? 'object-contain' : 'object-cover',
-                ]}
-              />
-            </picture>
+            <img
+              src={sources[index]!.src}
+              srcset={sources[index]!.srcSet.attribute}
+              sizes="100vw"
+              alt={slide.alt}
+              width={slide.image.width}
+              height={slide.image.height}
+              loading={index === 0 ? 'eager' : 'lazy'}
+              fetchpriority={index === 0 ? 'high' : 'auto'}
+              decoding={index === 0 ? 'sync' : 'async'}
+              class:list={[
+                'absolute inset-0 h-full w-full',
+                /* La pieza gráfica se muestra entera: recortarla cortaría su
+                   propio texto. La fotografía sí llena el marco. */
+                slide.mode === 'banner' ? 'object-contain' : 'object-cover',
+              ]}
+            />
 
             {slide.mode === 'photo' && (
               <>
@@ -255,22 +234,18 @@ const sources = await Promise.all(
      enmarcar la pieza y la dejaba aún más pequeña.
      Tampoco se le pone tope de altura: recortarla añadiría bandas laterales
      de un azul distinto al del degradado de la propia pieza. */
-  /* En móvil el marco toma la proporción del recorte 4:3, para que ese
-     encuadre entre completo. Desde 640 px vuelve al 12/5 de la pieza ancha. */
+  /* 12/5 = 2.4, exactamente la proporción de las cuatro piezas (1920x800),
+     en todos los tamaños: al coincidir marco e imagen, cada pieza entra
+     completa y al máximo tamaño que permite la pantalla, sin recorte ni
+     bandas. */
   .hero-slide {
     position: relative;
     flex: 0 0 100%;
     min-width: 0;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 12 / 5;
     scroll-snap-align: start;
     /* recorta el sangrado del desenfoque del fondo */
     overflow: hidden;
-  }
-
-  @media (width >= 40rem) {
-    .hero-slide {
-      aspect-ratio: 12 / 5;
-    }
   }
 
   /* Tope de altura: sin él, en un monitor de 1920 px el hero medía 800 px y se

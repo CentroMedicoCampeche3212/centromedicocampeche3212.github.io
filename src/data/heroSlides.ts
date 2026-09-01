@@ -3,11 +3,6 @@ import heroAtencionHumana from '@/assets/img/hero-03-atencion-humana.png';
 import heroQuirofanos from '@/assets/img/hero-04-quirofanos.png';
 import heroUrgencias from '@/assets/img/hero-05-urgencias.png';
 
-import heroPartosMovil from '@/assets/img/hero-01-partos-cesareas-movil.png';
-import heroAtencionHumanaMovil from '@/assets/img/hero-03-atencion-humana-movil.png';
-import heroQuirofanosMovil from '@/assets/img/hero-04-quirofanos-movil.png';
-import heroUrgenciasMovil from '@/assets/img/hero-05-urgencias-movil.png';
-
 /**
  * `photo`  Fotografía de fondo. Lleva velo azul degradado y el titular y la
  *          línea de apoyo se dibujan encima con HTML.
@@ -20,15 +15,6 @@ export type HeroSlideMode = 'photo' | 'banner';
 
 export interface HeroSlide {
   image: ImageMetadata;
-  /**
-   * Recorte 4:3 para pantallas pequeñas.
-   *
-   * La pieza ancha compone su texto para 1920 px: en un teléfono de 390 px se
-   * reduce cinco veces y la línea de apoyo baja de 7 px. El recorte encuadra
-   * solo la zona del mensaje —el logotipo ya está en el encabezado— así que
-   * ese mismo texto se sirve desde 960 px y se lee casi al doble.
-   */
-  imageMobile: ImageMetadata;
   /** Texto alternativo: transcribe el mensaje de la pieza. */
   alt: string;
   /** Rótulo corto para el indicador de puntos y las etiquetas ARIA. */
@@ -44,12 +30,14 @@ export interface HeroSlide {
  * Diapositivas del hero.
  *
  * Las cuatro son piezas gráficas terminadas del cliente, de 1920x800 px
- * (proporción 12:5). El contenedor del carrusel usa esa misma proporción desde
- * 640 px, así que entran completas: ni recorte ni bandas.
+ * (proporción 12:5). El contenedor del carrusel usa esa misma proporción en
+ * todos los tamaños, así que entran completas: ni recorte ni bandas.
  *
- * Por debajo de 640 px se sirve `imageMobile`, un recorte 4:3 centrado en el
- * mensaje. No es una decisión estética: es la única forma de que el texto
- * incrustado se lea en un teléfono.
+ * NO se recortan para el teléfono. Se probó servir un encuadre cerrado en el
+ * mensaje —el texto se leía casi al doble— pero el cliente pide ver la pieza
+ * entera, y cualquier encuadre le quita parte. La contrapartida es que en una
+ * pantalla estrecha el texto queda pequeño: eso solo lo arregla una versión
+ * de la pieza compuesta para móvil.
  *
  * El titular y la línea de apoyo van DENTRO de la imagen, así que el `alt`
  * los transcribe: es la única vía por la que ese mensaje llega a quien no ve
@@ -62,7 +50,6 @@ export interface HeroSlide {
 export const heroSlides: HeroSlide[] = [
   {
     image: heroPartos,
-    imageMobile: heroPartosMovil,
     mode: 'banner',
     label: 'El hospital número 1 en partos y cesáreas de Campeche',
     alt:
@@ -76,7 +63,6 @@ export const heroSlides: HeroSlide[] = [
   },
   {
     image: heroAtencionHumana,
-    imageMobile: heroAtencionHumanaMovil,
     mode: 'banner',
     label: 'Atención humana desde el primer momento',
     alt:
@@ -86,7 +72,6 @@ export const heroSlides: HeroSlide[] = [
   },
   {
     image: heroQuirofanos,
-    imageMobile: heroQuirofanosMovil,
     mode: 'banner',
     label: 'Quirófanos equipados y equipo especializado',
     alt:
@@ -96,7 +81,6 @@ export const heroSlides: HeroSlide[] = [
   },
   {
     image: heroUrgencias,
-    imageMobile: heroUrgenciasMovil,
     mode: 'banner',
     label: 'Urgencias las 24 horas',
     alt:
