@@ -56,17 +56,12 @@ export const address = {
  */
 export const contact = {
   /**
-   * Línea directa de urgencias.
-   *
-   * ATENCIÓN: la ficha promocional del hospital imprime 981 175 6512 y el
-   * texto que entregó el cliente dice 981 175 6513. Se publica el segundo por
-   * ser la indicación expresa, pero {{CONFIRMAR_TEL_URGENCIAS}} antes de subir
-   * el sitio: un dígito equivocado en una línea de urgencias no es un erratum
-   * cualquiera.
+   * Línea directa de urgencias, confirmada por el cliente: es la que imprime
+   * la ficha promocional del hospital.
    */
   emergency: {
-    label: '981 175 6513',
-    href: 'tel:+529811756513',
+    label: '981 175 6512',
+    href: 'tel:+529811756512',
     note: 'Urgencias, las 24 horas',
   },
   switchboard: {

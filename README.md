@@ -143,12 +143,11 @@ grep -rn "{{" src/
 ### Contacto y ubicación — `src/data/site.ts`
 
 Ya son datos reales confirmados: dirección, mapa, WhatsApp, conmutador,
-urgencias, Facebook e Instagram. El hospital no publica correo: la cuenta que
+urgencias (981 175 6512), Facebook e Instagram. El hospital no publica correo: la cuenta que
 se usaba quedó fuera de servicio. Queda un punto abierto:
 
 | Marcador                      | Qué es                                              |
 | ----------------------------- | --------------------------------------------------- |
-| `{{CONFIRMAR_TEL_URGENCIAS}}` | La ficha del hospital imprime **981 175 6512** y el texto entregado dice **981 175 6513**. Se publica el segundo. Confirmar antes de subir el sitio. |
 | `{{RAZON_SOCIAL}}`            | Nombre legal, para el aviso de privacidad           |
 
 > `directionsUrl` y las redes sociales deben quedar como **URL absolutas**
@@ -190,7 +189,7 @@ y el ancho de presentación al tamaño nativo de cada archivo: ninguna se amplí
 doble de tamaño**, sobre todo laboratorio (348 px), cirugía (420 px) y
 urología (480 px).
 
-Las cinco `hero-0*.png` del carrusel son **piezas gráficas terminadas del
+Las cuatro `hero-0*.png` del carrusel son **piezas gráficas terminadas del
 cliente**, de 1920x800 px (proporción 12:5). El marco del carrusel usa esa misma
 proporción en todos los tamaños, así que entran completas: ni recorte ni bandas.
 Al reemplazar alguna, conserve los 1920x800 y **reescriba su `alt`** en

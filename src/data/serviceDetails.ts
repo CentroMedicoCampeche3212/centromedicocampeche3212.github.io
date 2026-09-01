@@ -71,7 +71,7 @@ export const urgencias: ServiceHighlight = {
       'Hemodinamia',
     ],
   },
-  phone: { label: '981 175 6513', href: 'tel:+529811756513' },
+  phone: { label: '981 175 6512', href: 'tel:+529811756512' },
   whatsapp: { label: '981 136 6016', href: 'https://wa.me/5219811366016' },
 };
 
