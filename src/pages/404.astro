@@ -28,4 +28,31 @@ import { contact } from '@/data/site';
       </div>
     </div>
   </Section>
+
+  <script is:inline>
+    /**
+     * Rescate de direcciones antiguas.
+     *
+     * Hasta hace poco el sitio vivía bajo /CentroMedicoCampeche/. Cualquier
+     * enlace de esa época —compartido en redes, guardado en favoritos o
+     * impreso— cae aquí. En vez de dejar al visitante en un error, se le lleva
+     * a la página equivalente en la nueva estructura.
+     *
+     * La comparación ignora mayúsculas a propósito: el enlace de Facebook
+     * estaba escrito en minúsculas y era justo el que fallaba.
+     *
+     * Va `is:inline` para que se ejecute de inmediato, sin esperar a que Astro
+     * descargue un módulo: aquí cada milisegundo es una pantalla de error que
+     * el visitante no debería llegar a leer.
+     */
+    (function () {
+      var ruta = window.location.pathname;
+      var viejo = /^\/centromedicocampeche(\/|$)/i;
+
+      if (!viejo.test(ruta)) return;
+
+      var destino = ruta.replace(viejo, '/') + window.location.search + window.location.hash;
+      window.location.replace(destino);
+    })();
+  </script>
 </BaseLayout>

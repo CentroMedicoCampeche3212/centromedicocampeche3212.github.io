@@ -3,18 +3,25 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 
 /**
- * Despliegue en GitHub Pages (repositorio de proyecto).
+ * Despliegue en GitHub Pages, en la raíz del dominio.
  *
- * El sitio queda en https://centromedicocampeche3212.github.io/CentroMedicoCampeche/
- * El repositorio DEBE llamarse exactamente `CentroMedicoCampeche`: `BASE` es
- * el prefijo que GitHub Pages antepone a todas las rutas, y si el nombre no
- * coincide, cada enlace y cada imagen del sitio apuntan a un 404.
+ * El sitio vive en https://centromedicocampeche3212.github.io/
  *
- * Para un dominio propio: cambie SITE por el dominio, ponga BASE = '/' y
- * agregue un archivo public/CNAME con el nombre del dominio.
+ * Para que sirva desde la raíz, el repositorio DEBE llamarse exactamente
+ * `centromedicocampeche3212.github.io` (el patrón `<usuario>.github.io` que
+ * GitHub reserva para el sitio personal de la cuenta).
+ *
+ * Antes vivía en /CentroMedicoCampeche/ y se movió por un motivo concreto:
+ * GitHub Pages distingue mayúsculas en la ruta, y el enlace publicado en la
+ * página de Facebook estaba en minúsculas, así que daba 404. Sin ruta no hay
+ * capitalización que equivocar. Las direcciones antiguas siguen funcionando
+ * gracias al redireccionador de public/ y al de la página 404.
+ *
+ * Para un dominio propio: cambie SITE por el dominio y agregue un archivo
+ * public/CNAME con el nombre del dominio. BASE se queda en '/'.
  */
 const SITE = 'https://centromedicocampeche3212.github.io';
-const BASE = '/CentroMedicoCampeche/';
+const BASE = '/';
 
 export default defineConfig({
   site: SITE,

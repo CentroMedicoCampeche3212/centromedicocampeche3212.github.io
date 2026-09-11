@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es-MX">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Centro Médico Campeche</title>
+
+    <!--
+      Redireccionador de compatibilidad.
+
+      El enlace publicado en la página de Facebook del hospital apunta a
+      /centromedicocampeche (en minúsculas). Cuando el sitio vivía en
+      /CentroMedicoCampeche/, esa dirección daba 404: GitHub Pages distingue
+      mayúsculas en la ruta.
+
+      Ahora el sitio está en la raíz del dominio, y este archivo mantiene viva
+      aquella dirección para que el enlace ya compartido siga llevando al sitio
+      sin tener que editarlo en Facebook.
+
+      Se usa `meta refresh` y no solo JavaScript: el navegador integrado de la
+      aplicación de Facebook es el que más se usa para entrar, y así funciona
+      aunque el script no llegue a ejecutarse.
+    -->
+    <meta http-equiv="refresh" content="0; url=/" />
+    <link rel="canonical" href="https://centromedicocampeche3212.github.io/" />
+    <meta name="robots" content="noindex" />
+
+    <style>
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: grid;
+        place-content: center;
+        gap: 1rem;
+        padding: 2rem;
+        text-align: center;
+        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        color: #12222e;
+        background: #edf4f9;
+      }
+      a {
+        color: #1264a3;
+        font-weight: 500;
+      }
+    </style>
+  </head>
+
+  <body>
+    <p>Le estamos llevando al sitio del Centro Médico Campeche…</p>
+    <p><a href="/">Continuar</a></p>
+
+    <script>
+      // Sustituye la entrada en el historial para que el botón "atrás" no
+      // devuelva al usuario a esta página intermedia.
+      window.location.replace('/');
+    </script>
+  </body>
+</html>
